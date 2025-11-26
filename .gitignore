@@ -1,0 +1,46 @@
+
+## Visual Studio
+
+.vs/
+[Bb]in/
+
+[Oo]bj/
+
+*.user
+
+*.suo
+
+*.cache
+
+*.db
+
+*.log
+
+appsettings.Development.json
+
+## .NET Core
+
+project.lock.json
+
+project.fragment.lock.json
+
+artifacts/
+
+## NuGet
+
+.nuget/
+
+*.nupkg
+
+**/packages/*
+
+## VS Code
+
+.vscode/
+
+## OS
+
+.DS_Store
+
+Thumbs.db
+

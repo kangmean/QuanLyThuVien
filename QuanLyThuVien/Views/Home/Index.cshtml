@@ -1,0 +1,70 @@
+﻿@model IEnumerable<QuanLyThuVien.Models.Document>
+@{
+    ViewData["Title"] = "Trang chủ - Quản Lý Thư Viện";
+}
+
+<div class="text-center mb-5">
+    <h1 class="display-4">📚 Quản Lý Thư Viện</h1>
+    <p class="lead">Chia sẻ và quản lý tài liệu học tập</p>
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <a href="@Url.Action("Create", "Documents")" class="btn btn-primary btn-lg">
+            📤 Upload Tài Liệu Mới
+        </a>
+    }
+    else
+    {
+        <a href="@Url.Action("Register", "Account")" class="btn btn-primary btn-lg">
+            📝 Đăng Ký Để Upload Tài Liệu
+        </a>
+    }
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <h2>Tài Liệu Mới Nhất</h2>
+
+        @if (Model.Any())
+        {
+            <div class="row">
+                @foreach (var document in Model)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">@document.Title</h5>
+                                <p class="card-text text-muted">@document.Description</p>
+                                <div class="document-info">
+                                    <small class="text-muted">
+                                        <strong>Loại:</strong> @document.FileType
+                                    </small>
+                                    <br>
+                                    <small class="text-muted">
+                                        <strong>Kích thước:</strong> @(document.FileSize / 1024) KB
+                                    </small>
+                                    <br>
+                                    <small class="text-muted">
+                                        <strong>Upload:</strong> @document.UploadDate.ToString("dd/MM/yyyy")
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <a href="@Url.Action("Details", "Documents", new { id = document.Id })"
+                                   class="btn btn-outline-primary btn-sm">
+                                    👁️ Xem Chi Tiết
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                📝 Chưa có tài liệu nào. Hãy là người đầu tiên upload tài liệu!
+            </div>
+        }
+    </div>
+</div>
