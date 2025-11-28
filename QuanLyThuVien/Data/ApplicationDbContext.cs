@@ -12,6 +12,8 @@ namespace QuanLyThuVien.Data
         }
 
         public DbSet<Document> Documents { get; set; }
+        public DbSet<University> Universities { get; set; }
+        public DbSet<Subject> Subjects { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

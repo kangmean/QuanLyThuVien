@@ -33,9 +33,17 @@ namespace QuanLyThuVien.Models
 
         // Foreign key - SỬA THÀNH STRING
         public string UserId { get; set; }
+        public int? UniversityId { get; set; }
+        public int? SubjectId {  get; set; }
 
         // Navigation property - SỬA THÀNH IdentityUser
         [ForeignKey("UserId")]
         public IdentityUser User { get; set; }
+        
+        [ForeignKey("UniversityId")]
+        public University University { get; set; }
+
+        [ForeignKey("SubjectId")]
+        public Subject Subject { get; set; }
     }
 }
