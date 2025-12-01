@@ -1,0 +1,146 @@
+﻿@model IEnumerable<QuanLyThuVien.Models.Document>
+
+@{
+    ViewData["Title"] = "Tìm kiếm tài liệu";
+}
+
+<div class="container mt-4">
+    <h1>🔍 Tìm kiếm tài liệu</h1>
+
+    <!-- Search Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="Search" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="searchString" class="form-control" 
+                           placeholder="Tìm theo tiêu đề, mô tả..." 
+                           value="@ViewData["CurrentFilter"]" />
+                </div>
+                
+                <div class="col-md-2">
+                    <select name="universityId" class="form-control">
+                        <option value="">Tất cả trường</option>
+                        @foreach (var university in ViewData["Universities"] as List<QuanLyThuVien.Models.University>)
+                        {
+                            <option value="@university.Id" 
+                                    selected="@(ViewData["UniversityFilter"]?.ToString() == university.Id.ToString())">
+                                @university.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <select name="subjectId" class="form-control">
+                        <option value="">Tất cả môn học</option>
+                        @foreach (var subject in ViewData["Subjects"] as List<QuanLyThuVien.Models.Subject>)
+                        {
+                            <option value="@subject.Id" 
+                                    selected="@(ViewData["SubjectFilter"]?.ToString() == subject.Id.ToString())">
+                                @subject.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <select name="fileType" class="form-control">
+                        <option value="">Tất cả loại file</option>
+                        @foreach (var type in ViewData["FileTypes"] as List<string>)
+                        {
+                            <option value="@type" 
+                                    selected="@(ViewData["FileTypeFilter"]?.ToString() == type)">
+                                @type
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    <div class="row">
+        <div class="col-12">
+            <h4>Kết quả tìm kiếm (@ViewData["TotalCount"] tài liệu)</h4>
+            
+            @if (Model.Any())
+            {
+                <div class="row">
+                    @foreach (var document in Model)
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">@document.Title</h5>
+                                    <p class="card-text text-muted">@document.Description</p>
+                                    <div class="document-info">
+                                        <small class="text-muted d-block">
+                                            <strong>Loại:</strong> @document.FileType
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <strong>Kích thước:</strong> @(document.FileSize / 1024) KB
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <strong>Upload:</strong> @document.UploadDate.ToString("dd/MM/yyyy")
+                                        </small>
+                                        @if (document.University != null)
+                                        {
+                                            <small class="text-muted d-block">
+                                                <strong>Trường:</strong> @document.University.Name
+                                            </small>
+                                        }
+                                        @if (document.Subject != null)
+                                        {
+                                            <small class="text-muted d-block">
+                                                <strong>Môn:</strong> @document.Subject.Name
+                                            </small>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="@Url.Action("Download", "Documents", new { id = document.Id })" 
+                                       class="btn btn-success btn-sm">📥 Download</a>
+                                    <a href="@Url.Action("Details", "Documents", new { id = document.Id })" 
+                                       class="btn btn-info btn-sm">👁️ Chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if ((int)ViewData["TotalPages"] > 1)
+                {
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            @for (int i = 1; i <= (int)ViewData["TotalPages"]; i++)
+                            {
+                                <li class="page-item @(i == (int)ViewData["CurrentPage"] ? "active" : "")">
+                                    <a class="page-link" 
+                                       href="@Url.Action("Search", new { 
+                                           searchString = ViewData["CurrentFilter"],
+                                           universityId = ViewData["UniversityFilter"],
+                                           subjectId = ViewData["SubjectFilter"],
+                                           fileType = ViewData["FileTypeFilter"],
+                                           page = i 
+                                       })">@i</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info text-center">
+                    📝 Không tìm thấy tài liệu nào phù hợp với tiêu chí tìm kiếm.
+                </div>
+            }
+        </div>
+    </div>
+</div>  

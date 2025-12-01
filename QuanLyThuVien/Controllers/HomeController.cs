@@ -40,5 +40,66 @@ namespace QuanLyThuVien.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        public async Task<IActionResult> Search(string searchString, int? universityId, int? subjectId, string fileType, int page = 1, int pageSize = 9)
+        {
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["UniversityFilter"] = universityId;
+            ViewData["SubjectFilter"] = subjectId;
+            ViewData["FileTypeFilter"] = fileType;
+
+            var documents = _context.Documents
+                .Include(d => d.University)
+                .Include(d => d.Subject)
+                .Include(d => d.User)
+                .AsQueryable();
+
+            // Áp dụng search filter
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                documents = documents.Where(d =>
+                    d.Title.Contains(searchString) ||
+                    d.Description.Contains(searchString));
+            }
+
+            // Áp dụng university filter
+            if (universityId.HasValue)
+            {
+                documents = documents.Where(d => d.UniversityId == universityId);
+            }
+
+            // Áp dụng subject filter
+            if (subjectId.HasValue)
+            {
+                documents = documents.Where(d => d.SubjectId == subjectId);
+            }
+
+            // Áp dụng file type filter
+            if (!string.IsNullOrEmpty(fileType))
+            {
+                documents = documents.Where(d => d.FileType == fileType);
+            }
+
+            // Sắp xếp và phân trang
+            var totalCount = await documents.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var results = await documents
+                .OrderByDescending(d => d.UploadDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Truyền dữ liệu filter cho view
+            ViewData["Universities"] = await _context.Universities.ToListAsync();
+            ViewData["Subjects"] = await _context.Subjects.ToListAsync();
+            ViewData["FileTypes"] = new List<string> { ".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xlsx", ".txt" };
+
+            ViewData["CurrentPage"] = page;
+            ViewData["TotalPages"] = totalPages;
+            ViewData["TotalCount"] = totalCount;
+
+            return View(results);
+        }
     }
 }

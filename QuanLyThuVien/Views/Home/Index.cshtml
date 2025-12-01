@@ -3,68 +3,126 @@
     ViewData["Title"] = "Trang chủ - Quản Lý Thư Viện";
 }
 
-<div class="text-center mb-5">
-    <h1 class="display-4">📚 Quản Lý Thư Viện</h1>
-    <p class="lead">Chia sẻ và quản lý tài liệu học tập</p>
-
-    @if (User.Identity.IsAuthenticated)
-    {
-        <a href="@Url.Action("Create", "Documents")" class="btn btn-primary btn-lg">
-            📤 Upload Tài Liệu Mới
-        </a>
-    }
-    else
-    {
-        <a href="@Url.Action("Register", "Account")" class="btn btn-primary btn-lg">
-            📝 Đăng Ký Để Upload Tài Liệu
-        </a>
-    }
+<!-- HERO SEARCH SECTION -->
+<div class="hero-section bg-primary text-white py-5 mb-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h1 class="display-4 mb-3">📚 Quản Lý Thư Viện</h1>
+                <p class="lead mb-4">Chia sẻ và khám phá tài liệu học tập từ cộng đồng sinh viên</p>
+                
+                <!-- SEARCH FORM -->
+                <form method="get" asp-action="Search" asp-controller="Home" class="mb-3">
+                    <div class="input-group input-group-lg">
+                        <input type="text" name="searchString" class="form-control" 
+                               placeholder="Tìm kiếm tài liệu, đề thi, bài giảng..." />
+                        <button type="submit" class="btn btn-light">🔍 Tìm kiếm</button>
+                    </div>
+                </form>
+                
+                <small>
+                    <a href="@Url.Action("Search", "Home")" class="text-white">Tìm kiếm nâng cao</a> • 
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a href="@Url.Action("Create", "Documents")" class="text-white">📤 Upload tài liệu mới</a>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Register", "Account")" class="text-white">📝 Đăng ký để upload</a>
+                    }
+                </small>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="row mt-5">
-    <div class="col-12">
-        <h2>Tài Liệu Mới Nhất</h2>
+<!-- TÀI LIỆU MỚI NHẤT -->
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-4">📄 Tài Liệu Mới Nhất</h2>
 
-        @if (Model.Any())
-        {
-            <div class="row">
-                @foreach (var document in Model)
-                {
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">@document.Title</h5>
-                                <p class="card-text text-muted">@document.Description</p>
-                                <div class="document-info">
-                                    <small class="text-muted">
-                                        <strong>Loại:</strong> @document.FileType
-                                    </small>
-                                    <br>
-                                    <small class="text-muted">
-                                        <strong>Kích thước:</strong> @(document.FileSize / 1024) KB
-                                    </small>
-                                    <br>
-                                    <small class="text-muted">
-                                        <strong>Upload:</strong> @document.UploadDate.ToString("dd/MM/yyyy")
-                                    </small>
+            @if (Model.Any())
+            {
+                <div class="row">
+                    @foreach (var document in Model)
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">@document.Title</h5>
+                                    <p class="card-text text-muted">@document.Description</p>
+                                    <div class="document-info">
+                                        <small class="text-muted">
+                                            <strong>Loại:</strong> @document.FileType
+                                        </small>
+                                        <br>
+                                        <small class="text-muted">
+                                            <strong>Kích thước:</strong> @(document.FileSize / 1024) KB
+                                        </small>
+                                        <br>
+                                        <small class="text-muted">
+                                            <strong>Upload:</strong> @document.UploadDate.ToString("dd/MM/yyyy")
+                                        </small>
+                                        @if (document.University != null)
+                                        {
+                                            <br>
+                                            <small class="text-muted">
+                                                <strong>Trường:</strong> @document.University.Name
+                                            </small>
+                                        }
+                                        @if (document.Subject != null)
+                                        {
+                                            <br>
+                                            <small class="text-muted">
+                                                <strong>Môn:</strong> @document.Subject.Name
+                                            </small>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="@Url.Action("Details", "Documents", new { id = document.Id })" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        👁️ Chi tiết
+                                    </a>
+                                    <!-- THÊM NÚT DOWNLOAD -->
+                                    <a href="@Url.Action("Download", "Documents", new { id = document.Id })" 
+                                       class="btn btn-outline-success btn-sm">
+                                        📥 Download
+                                    </a>
                                 </div>
                             </div>
-                            <div class="card-footer">
-                                <a href="@Url.Action("Details", "Documents", new { id = document.Id })"
-                                   class="btn btn-outline-primary btn-sm">
-                                    👁️ Xem Chi Tiết
-                                </a>
-                            </div>
                         </div>
+                    }
+                </div>
+                
+                <!-- XEM TẤT CẢ TÀI LIỆU -->
+                <div class="text-center mt-4">
+                    <a href="@Url.Action("Index", "Documents")" class="btn btn-outline-primary">
+                        📚 Xem tất cả tài liệu
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center">
+                    📝 Chưa có tài liệu nào. Hãy là người đầu tiên upload tài liệu!
+                    <div class="mt-2">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a href="@Url.Action("Create", "Documents")" class="btn btn-primary">
+                                📤 Upload tài liệu đầu tiên
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("Register", "Account")" class="btn btn-primary">
+                                📝 Đăng ký để bắt đầu
+                            </a>
+                        }
                     </div>
-                }
-            </div>
-        }
-        else
-        {
-            <div class="alert alert-info">
-                📝 Chưa có tài liệu nào. Hãy là người đầu tiên upload tài liệu!
-            </div>
-        }
+                </div>
+            }
+        </div>
     </div>
 </div>
