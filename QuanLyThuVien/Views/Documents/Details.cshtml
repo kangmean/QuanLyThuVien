@@ -1,72 +1,243 @@
 ﻿@model QuanLyThuVien.Models.Document
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết tài liệu";
 }
 
-<h1>Details</h1>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Document Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h1 class="card-title">@Model.Title</h1>
+                    <p class="card-text">@Model.Description</p>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h5>📋 Thông tin tài liệu</h5>
+                            <ul class="list-unstyled">
+                                <li><strong>Loại file:</strong> @Model.FileType</li>
+                                <li><strong>Kích thước:</strong> @(Model.FileSize / 1024) KB</li>
+                                <li><strong>Ngày upload:</strong> @Model.UploadDate.ToString("dd/MM/yyyy HH:mm")</li>
+                                <li><strong>Người upload:</strong> @Model.User?.UserName</li>
+                                @if (Model.University != null)
+                                {
+                                    <li><strong>Trường:</strong> @Model.University.Name</li>
+                                }
+                                @if (Model.Subject != null)
+                                {
+                                    <li><strong>Môn học:</strong> @Model.Subject.Name</li>
+                                }
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>⭐ Đánh giá</h5>
+                            <div class="rating-display mb-3">
+                                <!-- Star Display -->
+                                <div class="star-rating">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= Model.AverageRating)
+                                        {
+                                            <span class="star filled">★</span>
+                                        }
+                                        else if (i - 0.5 <= Model.AverageRating)
+                                        {
+                                            <span class="star half">★</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="star">★</span>
+                                        }
+                                    }
+                                    <span class="rating-value">@Model.AverageRating.ToString("0.0")</span>
+                                    <span class="rating-count">(@Model.RatingCount đánh giá)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a asp-action="Download" asp-route-id="@Model.Id" class="btn btn-success">
+                        📥 Download Tài Liệu
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Sửa</a>
+                    <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+                </div>
+            </div>
 
-<div>
-    <h4>Document</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FilePath)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FilePath)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FileType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FileType)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FileSize)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FileSize)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UploadDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UploadDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.University)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.University.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Subject)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Subject.Name)
-        </dd>
-    </dl>
+            <!-- Rating Form -->
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5>📝 Đánh giá tài liệu này</h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-controller="Ratings" asp-action="Create" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="documentId" value="@Model.Id" />
+                            
+                            <!-- Star Rating Input -->
+                            <div class="mb-3">
+                                <label class="form-label">Điểm đánh giá:</label>
+                                <div class="star-rating-input">
+                                    @for (int i = 5; i >= 1; i--)
+                                    {
+                                        <input type="radio" id="star@(i)" name="score" value="@i" required />
+                                        <label for="star@(i)" title="@i sao">★</label>
+                                    }
+                                </div>
+                            </div>
+                            
+                            <!-- Comment Input -->
+                            <div class="mb-3">
+                                <label for="comment" class="form-label">Nhận xét (tùy chọn):</label>
+                                <textarea class="form-control" id="comment" name="comment" rows="3" 
+                                          placeholder="Chia sẻ nhận xét của bạn về tài liệu này..."></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+                        </form>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <a asp-area="Identity" asp-page="/Account/Login">Đăng nhập</a> để đánh giá tài liệu này.
+                </div>
+            }
+
+            <!-- Ratings List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>💬 Nhận xét từ người dùng</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Ratings != null && Model.Ratings.Any())
+                    {
+                        foreach (var rating in Model.Ratings.OrderByDescending(r => r.CreatedAt))
+                        {
+                            <div class="rating-item mb-3 pb-3 border-bottom">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>@rating.User?.UserName</strong>
+                                        <small class="text-muted"> - @rating.CreatedAt.ToString("dd/MM/yyyy")</small>
+                                    </div>
+                                    <div class="star-rating-small">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <span class="@(i <= rating.Score ? "star-filled" : "star-empty")">★</span>
+                                        }
+                                    </div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(rating.Comment))
+                                {
+                                    <p class="mt-2">@rating.Comment</p>
+                                }
+
+                                @if (User.Identity.IsAuthenticated && rating.UserId == User.Identity.Name){
+                                    <form asp-controller="Ratings" asp-action="Delete" method="post" 
+                                          class="mt-2" onsubmit="return confirm('Bạn có chắc muốn xóa đánh giá này?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@rating.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Xóa đánh giá</button>
+                                    </form>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+<style>
+    /* Star Rating Styles */
+    .star-rating {
+        font-size: 24px;
+        color: #ffc107;
+    }
+    
+    .star-rating .star {
+        cursor: default;
+    }
+    
+    .star-rating .star.filled {
+        color: #ffc107;
+    }
+    
+    .star-rating .star.half {
+        background: linear-gradient(90deg, #ffc107 50%, #ccc 50%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .rating-value {
+        font-size: 20px;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+    
+    .rating-count {
+        font-size: 14px;
+        color: #666;
+        margin-left: 5px;
+    }
+    
+    /* Star Rating Input */
+    .star-rating-input {
+        direction: rtl;
+        unicode-bidi: bidi-override;
+    }
+    
+    .star-rating-input input {
+        display: none;
+    }
+    
+    .star-rating-input label {
+        font-size: 30px;
+        color: #ccc;
+        cursor: pointer;
+        margin: 0 2px;
+    }
+    
+    .star-rating-input input:checked ~ label,
+    .star-rating-input label:hover,
+    .star-rating-input label:hover ~ label {
+        color: #ffc107;
+    }
+    
+    /* Small star rating for list */
+    .star-rating-small {
+        color: #ffc107;
+        font-size: 14px;
+    }
+    
+    .star-rating-small .star-filled {
+        color: #ffc107;
+    }
+    
+    .star-rating-small .star-empty {
+        color: #ccc;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Auto-select star when clicked
+        $(document).ready(function() {
+            $('.star-rating-input label').click(function() {
+                var starValue = $(this).attr('for').replace('star', '');
+                $('#star' + starValue).prop('checked', true);
+            });
+        });
+    </script>
+}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
@@ -14,7 +15,8 @@ namespace QuanLyThuVien.Models
         [Display(Name = "Tiêu đề")]
         public string Title { get; set; }
 
-        [StringLength(500, ErrorMessage = "Mô tả không quá 500 ký tự")]
+        [StringLength(1000, ErrorMessage = "Mô tả không quá 1000 ký tự")] // Tăng lên 1000
+        [DataType(DataType.MultilineText)]
         [Display(Name = "Mô tả")]
         public string Description { get; set; }
 
@@ -22,28 +24,85 @@ namespace QuanLyThuVien.Models
         [Display(Name = "Đường dẫn file")]
         public string FilePath { get; set; }
 
+        [Required]
+        [Display(Name = "Tên file gốc")]
+        public string OriginalFileName { get; set; }
+
         [Display(Name = "Loại file")]
         public string FileType { get; set; }
 
         [Display(Name = "Kích thước")]
+        [DisplayFormat(DataFormatString = "{0:N0} bytes")]
         public long FileSize { get; set; }
 
+        [Display(Name = "Số trang")]
+        public int? PageCount { get; set; }
+
         [Display(Name = "Ngày upload")]
+        [DataType(DataType.DateTime)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
         public DateTime UploadDate { get; set; } = DateTime.Now;
 
-        // Foreign key - SỬA THÀNH STRING
-        public string UserId { get; set; }
-        public int? UniversityId { get; set; }
-        public int? SubjectId {  get; set; }
+        [Display(Name = "Ngày cập nhật")]
+        [DataType(DataType.DateTime)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
+        public DateTime? LastUpdated { get; set; }
 
-        // Navigation property - SỬA THÀNH IdentityUser
+        // Foreign keys
+        [Required]
+        public string UserId { get; set; }
+
+        public int? UniversityId { get; set; }
+        public int? SubjectId { get; set; }
+
+        // Rating properties
+        [Display(Name = "Điểm đánh giá")]
+        [Column(TypeName = "decimal(3,1)")]
+        [Range(0, 5.0)]
+        public decimal AverageRating { get; set; } = 0;
+
+        [Display(Name = "Số lượt đánh giá")]
+        public int RatingCount { get; set; } = 0;
+
+        // Thống kê
+        [Display(Name = "Lượt xem")]
+        public int ViewCount { get; set; } = 0;
+
+        [Display(Name = "Lượt tải")]
+        public int DownloadCount { get; set; } = 0;
+
+        // Trạng thái
+        [Display(Name = "Trạng thái")]
+        public DocumentStatus Status { get; set; } = DocumentStatus.Approved;
+
+        // Navigation properties
         [ForeignKey("UserId")]
-        public IdentityUser User { get; set; }
-        
+        public virtual IdentityUser User { get; set; }
+
         [ForeignKey("UniversityId")]
-        public University University { get; set; }
+        public virtual University University { get; set; }
 
         [ForeignKey("SubjectId")]
-        public Subject Subject { get; set; }
+        public virtual Subject Subject { get; set; }
+
+        public virtual ICollection<Rating> Ratings { get; set; } = new List<Rating>();
+
+        // Có thể thêm Tags/Categories sau
+        // public virtual ICollection<DocumentTag> DocumentTags { get; set; }
+    }
+
+    public enum DocumentStatus
+    {
+        [Display(Name = "Chờ duyệt")]
+        Pending,
+
+        [Display(Name = "Đã duyệt")]
+        Approved,
+
+        [Display(Name = "Từ chối")]
+        Rejected,
+
+        [Display(Name = "Đã ẩn")]
+        Hidden
     }
 }
