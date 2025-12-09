@@ -1,243 +1,748 @@
 ﻿@model QuanLyThuVien.Models.Document
+@using QuanLyThuVien.Services
+@using System.Security.Claims
+@inject IRatingService RatingService
 
 @{
     ViewData["Title"] = "Chi tiết tài liệu";
+
+    // Lấy thông tin rating của user hiện tại
+    var userId = User.Identity.IsAuthenticated ? User.FindFirst(ClaimTypes.NameIdentifier)?.Value : null;
+    var userRating = !string.IsNullOrEmpty(userId)
+        ? await RatingService.GetUserRatingAsync(Model.Id, userId)
+        : null;
 }
 
 <div class="container mt-4">
     <div class="row">
-        <div class="col-md-8">
-            <!-- Document Info -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h1 class="card-title">@Model.Title</h1>
-                    <p class="card-text">@Model.Description</p>
-                    
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <h5>📋 Thông tin tài liệu</h5>
-                            <ul class="list-unstyled">
-                                <li><strong>Loại file:</strong> @Model.FileType</li>
-                                <li><strong>Kích thước:</strong> @(Model.FileSize / 1024) KB</li>
-                                <li><strong>Ngày upload:</strong> @Model.UploadDate.ToString("dd/MM/yyyy HH:mm")</li>
-                                <li><strong>Người upload:</strong> @Model.User?.UserName</li>
-                                @if (Model.University != null)
-                                {
-                                    <li><strong>Trường:</strong> @Model.University.Name</li>
-                                }
-                                @if (Model.Subject != null)
-                                {
-                                    <li><strong>Môn học:</strong> @Model.Subject.Name</li>
-                                }
-                            </ul>
+        <!-- Left Column - Document Info -->
+        <div class="col-lg-8">
+            <!-- Header Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <!-- Document Stats Row -->
+                    <div class="row mb-4">
+                        <!-- View Count -->
+                        <div class="col-6 col-md-3 text-center">
+                            <div class="stat-card">
+                                <div class="stat-icon text-primary">
+                                    <i class="bi bi-eye-fill fs-1"></i>
+                                </div>
+                                <div class="stat-number fw-bold fs-4">@Model.ViewCount</div>
+                                <div class="stat-label text-muted">Lượt xem</div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <h5>⭐ Đánh giá</h5>
-                            <div class="rating-display mb-3">
-                                <!-- Star Display -->
-                                <div class="star-rating">
-                                    @for (int i = 1; i <= 5; i++)
-                                    {
-                                        if (i <= Model.AverageRating)
-                                        {
-                                            <span class="star filled">★</span>
-                                        }
-                                        else if (i - 0.5 <= Model.AverageRating)
-                                        {
-                                            <span class="star half">★</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="star">★</span>
-                                        }
-                                    }
-                                    <span class="rating-value">@Model.AverageRating.ToString("0.0")</span>
-                                    <span class="rating-count">(@Model.RatingCount đánh giá)</span>
+
+                        <!-- Download Count -->
+                        <div class="col-6 col-md-3 text-center">
+                            <div class="stat-card">
+                                <div class="stat-icon text-success">
+                                    <i class="bi bi-download fs-1"></i>
+                                </div>
+                                <div class="stat-number fw-bold fs-4">@Model.DownloadCount</div>
+                                <div class="stat-label text-muted">Lượt tải</div>
+                            </div>
+                        </div>
+
+                        <!-- Rating -->
+                        <div class="col-6 col-md-3 text-center">
+                            <div class="stat-card">
+                                <div class="stat-icon text-warning">
+                                    <i class="bi bi-star-fill fs-1"></i>
+                                </div>
+                                <div class="stat-number fw-bold fs-4">@Model.AverageRating.ToString("0.0")</div>
+                                <div class="stat-label text-muted">
+                                    Điểm đánh giá
+                                    <br>
+                                    <small>(@Model.RatingCount đánh giá)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- File Size -->
+                        <div class="col-6 col-md-3 text-center">
+                            <div class="stat-card">
+                                <div class="stat-icon text-info">
+                                    <i class="bi bi-file-earmark-text fs-1"></i>
+                                </div>
+                                <div class="stat-number fw-bold fs-4">@FormatFileSize(Model.FileSize)</div>
+                                <div class="stat-label text-muted">
+                                    Kích thước
+                                    <br>
+                                    <span class="badge bg-secondary">@Model.FileType.ToUpper()</span>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Document Title & Description -->
+                    <h1 class="mb-3 fw-bold">@Model.Title</h1>
+                    <p class="lead text-muted mb-4">@Model.Description</p>
+
+                    <!-- Metadata Tags -->
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        @if (Model.University != null)
+                        {
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary">
+                                <i class="bi bi-building me-1"></i> @Model.University.Name
+                            </span>
+                        }
+                        @if (Model.Subject != null)
+                        {
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success">
+                                <i class="bi bi-book me-1"></i> @Model.Subject.Name
+                            </span>
+                        }
+                        <span class="badge bg-info bg-opacity-10 text-info border border-info">
+                            <i class="bi bi-calendar me-1"></i> @Model.UploadDate.ToString("dd/MM/yyyy")
+                        </span>
+                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">
+                            <i class="bi bi-person me-1"></i> @Model.User?.UserName
+                        </span>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex flex-wrap gap-2">
+                        <a asp-action="Download" asp-route-id="@Model.Id"
+                           class="btn btn-success btn-lg px-4 py-2">
+                            <i class="bi bi-download me-2"></i> Tải xuống ngay
+                        </a>
+                        @if (User.Identity.IsAuthenticated && (Model.UserId == userId || User.IsInRole("Admin")))
+                        {
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning">
+                                <i class="bi bi-pencil me-1"></i> Sửa
+                            </a>
+                        }
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Quay lại
+                        </a>
+                    </div>
                 </div>
-                <div class="card-footer">
-                    <a asp-action="Download" asp-route-id="@Model.Id" class="btn btn-success">
-                        📥 Download Tài Liệu
-                    </a>
-                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Sửa</a>
-                    <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+            </div>
+
+            <!-- Rating Distribution Chart -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Phân phối đánh giá</h5>
+                </div>
+                <div class="card-body">
+                    @for (int stars = 5; stars >= 1; stars--)
+                    {
+                        var ratingCount = Model.Ratings?.Count(r => r.Score == stars) ?? 0;
+                        var percentage = Model.RatingCount > 0 ? (ratingCount * 100 / Model.RatingCount) : 0;
+
+                        <div class="row align-items-center mb-2">
+                            <div class="col-1 text-end">
+                                <span class="text-warning">@stars ★</span>
+                            </div>
+                            <div class="col-8">
+                                <div class="progress" style="height: 12px;">
+                                    <div class="progress-bar bg-warning" role="progressbar"
+                                         style="width: @percentage%"
+                                         aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <span class="text-muted small">@ratingCount (@percentage%)</span>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
 
             <!-- Rating Form -->
+            <!-- Rating Form - SIMPLE WORKING VERSION -->
             @if (User.Identity.IsAuthenticated)
             {
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5>📝 Đánh giá tài liệu này</h5>
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="bi bi-chat-square-text me-2"></i>
+                            @(userRating != null ? "Cập nhật đánh giá của bạn" : "Đánh giá tài liệu này")
+                        </h5>
                     </div>
                     <div class="card-body">
-                        <form asp-controller="Ratings" asp-action="Create" method="post">
-                            @Html.AntiForgeryToken()
+                        <form id="ratingForm" method="post"
+                              asp-controller="Ratings" asp-action="SubmitRating">
                             <input type="hidden" name="documentId" value="@Model.Id" />
-                            
-                            <!-- Star Rating Input -->
-                            <div class="mb-3">
-                                <label class="form-label">Điểm đánh giá:</label>
-                                <div class="star-rating-input">
-                                    @for (int i = 5; i >= 1; i--)
+
+                            <!-- SIMPLE STAR RATING THAT WORKS -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold mb-3">Điểm đánh giá:</label>
+                                <div class="d-flex justify-content-center gap-4">
+                                    @for (int i = 1; i <= 5; i++)
                                     {
-                                        <input type="radio" id="star@(i)" name="score" value="@i" required />
-                                        <label for="star@(i)" title="@i sao">★</label>
+                                        <div class="text-center">
+                                            <input type="radio" id="star-@i" name="score" value="@i"
+                                                   class="form-check-input" style="display: none;"
+                                                   @(userRating?.Score == i ? "checked" : "") />
+                                            <label for="star-@i" class="star-choice" data-value="@i">
+                                                <div class="stars-display mb-1">
+                                                    @for (int s = 1; s <= i; s++)
+                                                    {
+                                                        <i class="bi bi-star-fill fs-2 text-warning"></i>
+                                                    }
+                                                    @for (int s = i + 1; s <= 5; s++)
+                                                    {
+                                                        <i class="bi bi-star fs-2 text-secondary"></i>
+                                                    }
+                                                </div>
+                                                <div class="small">@i sao</div>
+                                            </label>
+                                        </div>
                                     }
                                 </div>
                             </div>
-                            
-                            <!-- Comment Input -->
-                            <div class="mb-3">
-                                <label for="comment" class="form-label">Nhận xét (tùy chọn):</label>
-                                <textarea class="form-control" id="comment" name="comment" rows="3" 
-                                          placeholder="Chia sẻ nhận xét của bạn về tài liệu này..."></textarea>
+
+                            <div class="mb-4">
+                                <label for="comment" class="form-label fw-bold">Nhận xét:</label>
+                                <textarea name="comment" class="form-control" rows="4"
+                                      placeholder="Chia sẻ cảm nhận của bạn về tài liệu này...">@userRating?.Comment</textarea>
+                                <div class="form-text">Tối đa 500 ký tự</div>
                             </div>
-                            
-                            <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="bi @(userRating != null ? "bi-check-circle" : "bi-star") me-1"></i>
+                                    @(userRating != null ? "Cập nhật đánh giá" : "Gửi đánh giá")
+                                </button>
+
+                                @if (userRating != null)
+                                {
+                                    <button type="button" class="btn btn-outline-danger"
+                                            onclick="deleteRating(@userRating.Id)">
+                                        <i class="bi bi-trash me-1"></i> Xóa đánh giá
+                                    </button>
+                                }
+                            </div>
                         </form>
                     </div>
                 </div>
             }
-            else
-            {
-                <div class="alert alert-info">
-                    <a asp-area="Identity" asp-page="/Account/Login">Đăng nhập</a> để đánh giá tài liệu này.
-                </div>
-            }
 
-            <!-- Ratings List -->
-            <div class="card">
-                <div class="card-header">
-                    <h5>💬 Nhận xét từ người dùng</h5>
+            <!-- Reviews List -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-chat-left-text me-2"></i>Nhận xét từ người dùng</h5>
+                    <span class="badge bg-primary">@Model.RatingCount đánh giá</span>
+                </div>
+                <div class="card-body" id="reviewsContainer">
+                    <!-- Reviews will be loaded via AJAX -->
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Đang tải đánh giá...</p>
+                    </div>
+                </div>
+                <div class="card-footer text-center" id="loadMoreContainer" style="display: none;">
+                    <button id="loadMoreBtn" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-chevron-down me-1"></i> Xem thêm đánh giá
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Sidebar -->
+        <div class="col-lg-4">
+            <!-- Preview Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-eye me-2"></i>Xem trước</h6>
+                </div>
+                <div class="card-body text-center">
+                    @switch (Model.FileType.ToLower())
+                    {
+                        case ".pdf":
+                            <i class="bi bi-file-earmark-pdf text-danger display-1"></i>
+                            break;
+                        case ".docx":
+                        case ".doc":
+                            <i class="bi bi-file-earmark-word text-primary display-1"></i>
+                            break;
+                        case ".pptx":
+                        case ".ppt":
+                            <i class="bi bi-file-earmark-ppt text-warning display-1"></i>
+                            break;
+                        case ".txt":
+                            <i class="bi bi-file-earmark-text text-secondary display-1"></i>
+                            break;
+                        default:
+                            <i class="bi bi-file-earmark display-1"></i>
+                            break;
+                    }
+                    <p class="mt-3">
+                        <strong>@Model.OriginalFileName</strong>
+                    </p>
+                    <div class="text-muted small">
+                        <div>@FormatFileSize(Model.FileSize)</div>
+                        <div>@Model.FileType.ToUpper()</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Details Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Thông tin chi tiết</h6>
                 </div>
                 <div class="card-body">
-                    @if (Model.Ratings != null && Model.Ratings.Any())
-                    {
-                        foreach (var rating in Model.Ratings.OrderByDescending(r => r.CreatedAt))
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-calendar text-primary me-2"></i>
+                            <strong>Ngày upload:</strong>
+                            <div class="text-muted">@Model.UploadDate.ToString("dd/MM/yyyy HH:mm")</div>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-person text-primary me-2"></i>
+                            <strong>Người upload:</strong>
+                            <div class="text-muted">@Model.User?.UserName</div>
+                        </li>
+                        @if (Model.University != null)
                         {
-                            <div class="rating-item mb-3 pb-3 border-bottom">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <strong>@rating.User?.UserName</strong>
-                                        <small class="text-muted"> - @rating.CreatedAt.ToString("dd/MM/yyyy")</small>
-                                    </div>
-                                    <div class="star-rating-small">
-                                        @for (int i = 1; i <= 5; i++)
-                                        {
-                                            <span class="@(i <= rating.Score ? "star-filled" : "star-empty")">★</span>
-                                        }
-                                    </div>
-                                </div>
-                                @if (!string.IsNullOrEmpty(rating.Comment))
-                                {
-                                    <p class="mt-2">@rating.Comment</p>
-                                }
-
-                                @if (User.Identity.IsAuthenticated && rating.UserId == User.Identity.Name){
-                                    <form asp-controller="Ratings" asp-action="Delete" method="post" 
-                                          class="mt-2" onsubmit="return confirm('Bạn có chắc muốn xóa đánh giá này?');">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@rating.Id" />
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Xóa đánh giá</button>
-                                    </form>
-                                }
-                            </div>
+                            <li class="mb-2">
+                                <i class="bi bi-building text-primary me-2"></i>
+                                <strong>Trường:</strong>
+                                <div class="text-muted">@Model.University.Name</div>
+                            </li>
                         }
-                    }
-                    else
-                    {
-                        <p class="text-muted text-center">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
-                    }
+                        @if (Model.Subject != null)
+                        {
+                            <li class="mb-2">
+                                <i class="bi bi-book text-primary me-2"></i>
+                                <strong>Môn học:</strong>
+                                <div class="text-muted">@Model.Subject.Name</div>
+                            </li>
+                        }
+                        @if (Model.LastUpdated.HasValue)
+                        {
+                            <li class="mb-2">
+                                <i class="bi bi-arrow-clockwise text-primary me-2"></i>
+                                <strong>Cập nhật lần cuối:</strong>
+                                <div class="text-muted">@Model.LastUpdated.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Thống kê nhanh</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Lượt xem/ngày:</span>
+                        <span class="fw-bold">@(Math.Round(Model.ViewCount / Math.Max(1, (DateTime.Now - Model.UploadDate).TotalDays), 1))</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Lượt tải/ngày:</span>
+                        <span class="fw-bold">@(Math.Round(Model.DownloadCount / Math.Max(1, (DateTime.Now - Model.UploadDate).TotalDays), 1))</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tỉ lệ tải/xem:</span>
+                        <span class="fw-bold">@(Model.ViewCount > 0 ? (Model.DownloadCount * 100 / Model.ViewCount).ToString("0") : 0)%</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Độ phổ biến:</span>
+                        @{
+                            var popularity = Model.ViewCount + (Model.DownloadCount * 2) + (Model.RatingCount * 5);
+                            var popularityLevel = popularity > 100 ? "Cao" : popularity > 50 ? "Trung bình" : "Thấp";
+                        }
+                        <span class="badge bg-@(popularityLevel == "Cao" ? "success" : popularityLevel == "Trung bình" ? "warning" : "secondary")">
+                            @popularityLevel
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    /* Star Rating Styles */
-    .star-rating {
-        font-size: 24px;
-        color: #ffc107;
+@functions {
+    // Hàm format file size
+    private string FormatFileSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB" };
+        int order = 0;
+        double len = bytes;
+
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len = len / 1024;
+        }
+
+        return $"{len:0.##} {sizes[order]}";
     }
-    
-    .star-rating .star {
-        cursor: default;
-    }
-    
-    .star-rating .star.filled {
-        color: #ffc107;
-    }
-    
-    .star-rating .star.half {
-        background: linear-gradient(90deg, #ffc107 50%, #ccc 50%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    
-    .rating-value {
-        font-size: 20px;
-        font-weight: bold;
-        margin-left: 10px;
-    }
-    
-    .rating-count {
-        font-size: 14px;
-        color: #666;
-        margin-left: 5px;
-    }
-    
-    /* Star Rating Input */
-    .star-rating-input {
-        direction: rtl;
-        unicode-bidi: bidi-override;
-    }
-    
-    .star-rating-input input {
-        display: none;
-    }
-    
-    .star-rating-input label {
-        font-size: 30px;
-        color: #ccc;
-        cursor: pointer;
-        margin: 0 2px;
-    }
-    
-    .star-rating-input input:checked ~ label,
-    .star-rating-input label:hover,
-    .star-rating-input label:hover ~ label {
-        color: #ffc107;
-    }
-    
-    /* Small star rating for list */
-    .star-rating-small {
-        color: #ffc107;
-        font-size: 14px;
-    }
-    
-    .star-rating-small .star-filled {
-        color: #ffc107;
-    }
-    
-    .star-rating-small .star-empty {
-        color: #ccc;
-    }
-</style>
+}
 
 @section Scripts {
     <script>
-        // Auto-select star when clicked
+        // Debug info
+        console.log('Document ID:', @Model.Id);
+        console.log('User authenticated:', '@User.Identity.IsAuthenticated' === 'True');
+
+        // Star rating interaction - FIX 1
         $(document).ready(function() {
-            $('.star-rating-input label').click(function() {
-                var starValue = $(this).attr('for').replace('star', '');
-                $('#star' + starValue).prop('checked', true);
+            // Initialize star rating
+            initStarRating();
+
+            // Form submission handler
+            $('#ratingForm').submit(function(e) {
+                e.preventDefault();
+                submitRating();
             });
+
+            // Load initial reviews
+            loadReviews(1);
+        });
+
+        function initStarRating() {
+            $('.star-label').click(function() {
+                var starId = $(this).attr('for');
+                var starValue = starId.replace('star-', '');
+
+                console.log('Star clicked:', starValue);
+
+                // Uncheck all
+                $('.star-input input').prop('checked', false);
+                // Check selected
+                $('#' + starId).prop('checked', true);
+
+                // Update star display
+                updateStarDisplay(starValue);
+            });
+
+            // Initialize star display based on current selection
+            var checkedStar = $('.star-input input:checked');
+            if (checkedStar.length > 0) {
+                var starValue = checkedStar.val();
+                updateStarDisplay(starValue);
+            }
+
+            function updateStarDisplay(selectedValue) {
+                // Reset all stars
+                $('.star-icon').removeClass('bi-star-fill').addClass('bi-star');
+
+                // Fill stars up to selected value
+                for (var i = 1; i <= selectedValue; i++) {
+                    $('#star-' + i + ' + .star-label .star-icon').removeClass('bi-star').addClass('bi-star-fill');
+                }
+            }
+        }
+
+        // AJAX load reviews - FIX 2
+        let currentPage = 1;
+        let isLoading = false;
+
+        function loadReviews(page) {
+            if (isLoading) return;
+
+            isLoading = true;
+
+            console.log('Loading reviews page:', page, 'for document:', @Model.Id);
+
+            $('#reviewsContainer').html(
+                '<div class="text-center py-4">' +
+                '<div class="spinner-border spinner-border-sm text-primary" role="status">' +
+                '<span class="visually-hidden">Đang tải...</span>' +
+                '</div>' +
+                '<span class="ms-2">Đang tải đánh giá...</span>' +
+                '</div>'
+            );
+
+            $.ajax({
+                url: '/Ratings/GetRatings',
+                type: 'GET',
+                data: {
+                    documentId: @Model.Id,
+                    page: page
+                },
+                success: function(data) {
+                    console.log('Ratings response:', data);
+
+                    if (data.success) {
+                        displayReviews(data, page);
+                    } else {
+                        showError(data.message || 'Không thể tải đánh giá');
+                    }
+                    isLoading = false;
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', {
+                        status: xhr.status,
+                        statusText: xhr.statusText,
+                        responseText: xhr.responseText
+                    });
+                    showError('Lỗi kết nối đến server. Vui lòng thử lại.');
+                    isLoading = false;
+                }
+            });
+        }
+
+        function displayReviews(data, page) {
+            if (data.ratings.length > 0) {
+                var html = '';
+
+                $.each(data.ratings, function(index, review) {
+                    var starsHtml = '';
+                    for (var i = 1; i <= 5; i++) {
+                        starsHtml += '<i class="bi ' + (i <= review.score ? 'bi-star-fill' : 'bi-star') + ' text-warning me-1"></i>';
+                    }
+
+                    var deleteBtn = review.isCurrentUser
+                        ? '<button class="btn btn-sm btn-outline-danger btn-delete-rating" ' +
+                          'data-rating-id="' + review.id + '" title="Xóa đánh giá">' +
+                          '<i class="bi bi-trash"></i></button>'
+                        : '';
+
+                    html += `
+                        <div class="review-item mb-3 pb-3 border-bottom" data-id="${review.id}">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-2">
+                                            ${starsHtml}
+                                        </div>
+                                        <div>
+                                            <strong>${review.userName}</strong><br>
+                                            <small class="text-muted">${review.createdAt}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                ${deleteBtn}
+                            </div>
+                            ${review.comment ? '<div class="mt-2 ps-4">' + review.comment + '</div>' : ''}
+                        </div>
+                    `;
+                });
+
+                if (page === 1) {
+                    $('#reviewsContainer').html(html);
+                } else {
+                    $('#reviewsContainer').append(html);
+                }
+
+                if (data.hasMore) {
+                    $('#loadMoreContainer').show();
+                } else {
+                    $('#loadMoreContainer').hide();
+                }
+            } else if (page === 1) {
+                $('#reviewsContainer').html(
+                    '<div class="text-center py-4 text-muted">' +
+                    '<i class="bi bi-chat-dots fs-1"></i>' +
+                    '<p class="mt-2">Chưa có đánh giá nào</p>' +
+                    '</div>'
+                );
+                $('#loadMoreContainer').hide();
+            }
+        }
+
+        function showError(message) {
+            $('#reviewsContainer').html(
+                '<div class="alert alert-warning">' +
+                '<i class="bi bi-exclamation-triangle me-2"></i>' +
+                message +
+                '</div>'
+            );
+        }
+
+        // Load more reviews
+        $('#loadMoreBtn').click(function() {
+            currentPage++;
+            loadReviews(currentPage);
+        });
+
+        // Submit rating
+        function submitRating() {
+            var formData = $('#ratingForm').serialize();
+
+            console.log('Submitting rating form:', formData);
+
+            $.ajax({
+                url: $('#ratingForm').attr('action'),
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    console.log('Submit response:', response);
+
+                    if (response.success) {
+                        // Update UI without reloading page
+                        updateRatingStats(response.averageRating, response.ratingCount);
+                        loadReviews(1); // Reload reviews
+                        alert(response.message || 'Đã lưu đánh giá!');
+                    } else {
+                        alert(response.message || 'Có lỗi xảy ra');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Submit error:', xhr.responseText);
+                    alert('Lỗi kết nối. Vui lòng thử lại.');
+                }
+            });
+        }
+
+        // Delete rating
+        function deleteRating(ratingId) {
+            if (confirm('Bạn có chắc chắn muốn xóa đánh giá này?')) {
+                $.ajax({
+                    url: '/Ratings/Delete',
+                    type: 'POST',
+                    data: { id: ratingId },
+                    success: function(response) {
+                        console.log('Delete response:', response);
+
+                        if (response.success) {
+                            loadReviews(1); // Reload reviews
+                            alert(response.message || 'Đã xóa đánh giá');
+                        } else {
+                            alert(response.message || 'Có lỗi xảy ra');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Delete error:', xhr.responseText);
+                        alert('Lỗi kết nối. Vui lòng thử lại.');
+                    }
+                });
+            }
+        }
+
+        // Update rating stats without reloading page
+        function updateRatingStats(averageRating, ratingCount) {
+            // Update average rating display
+            $('.stat-number').eq(2).text(averageRating);
+
+            // Update rating count
+            $('.stat-label').eq(2).find('small').text('(' + ratingCount + ' đánh giá)');
+
+            // Update badge
+            $('.badge.bg-primary').text(ratingCount + ' đánh giá');
+
+            // Update distribution if needed
+            console.log('Stats updated:', { averageRating, ratingCount });
+        }
+
+        // Event delegation for delete buttons
+        $(document).on('click', '.btn-delete-rating', function() {
+            var ratingId = $(this).data('rating-id');
+            deleteRating(ratingId);
         });
     </script>
+
+    <style>
+        .star-choice {
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+            .star-choice:hover {
+                background-color: #f8f9fa;
+                border-color: #dee2e6;
+                transform: scale(1.05);
+            }
+
+        input[type="radio"]:checked + .star-choice {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+            box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+        }
+        /* Stat Cards */
+        .stat-card {
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            transition: transform 0.2s;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+                background: #e9ecef;
+            }
+
+        .stat-icon {
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+        }
+
+        /* Star Rating FIX */
+        .star-input {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+
+            .star-input input[type="radio"] {
+                display: none !important;
+            }
+
+        .star-label {
+            cursor: pointer;
+            font-size: 2rem;
+            color: #ddd;
+            transition: color 0.3s;
+        }
+
+            .star-label:hover,
+            .star-label:hover ~ .star-label,
+            .star-input input:checked ~ .star-label {
+                color: #ffc107 !important;
+            }
+
+        .star-input input:checked + .star-label {
+            color: #ffc107 !important;
+        }
+
+        /* Review Items */
+        .review-item {
+            transition: background-color 0.2s;
+        }
+
+            .review-item:hover {
+                background-color: #f8f9fa;
+            }
+
+        /* Progress Bars */
+        .progress {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* Badges */
+        .badge {
+            padding: 0.35em 0.65em;
+            font-weight: 500;
+        }
+
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 12px;
+        }
+
+        .card-header {
+            border-radius: 12px 12px 0 0 !important;
+            border-bottom: 1px solid rgba(0,0,0,.125);
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .stat-card {
+                margin-bottom: 15px;
+            }
+        }
+    </style>
 }

@@ -17,7 +17,7 @@ namespace QuanLyThuVien.Models
 
         [StringLength(500, ErrorMessage = "Comment cannot exceed 500 characters")]
         [Display(Name = "Nhận xét")]
-        public string Comment { get; set; }
+        public string? Comment { get; set; }
 
         [Display(Name = "Ngày đánh giá")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;

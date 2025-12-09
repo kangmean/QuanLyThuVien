@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using System.Security.Claims;
+using QuanLyThuVien.Services;  // ✅ DÒNG MỚI THÊM
 
 namespace QuanLyThuVien.Controllers
 {
@@ -18,11 +19,20 @@ namespace QuanLyThuVien.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _environment;
+        private readonly IDocumentService _documentService;  // ✅ DÒNG MỚI THÊM
+        private readonly IRatingService _ratingService;      // ✅ DÒNG MỚI THÊM
 
-        public DocumentsController(ApplicationDbContext context, IWebHostEnvironment environment)
+        // ✅ SỬA CONSTRUCTOR
+        public DocumentsController(
+            ApplicationDbContext context,
+            IWebHostEnvironment environment,
+            IDocumentService documentService,    // ✅ PARAMETER MỚI
+            IRatingService ratingService)        // ✅ PARAMETER MỚI
         {
             _context = context;
             _environment = environment;
+            _documentService = documentService;  // ✅ DÒNG MỚI THÊM
+            _ratingService = ratingService;      // ✅ DÒNG MỚI THÊM
         }
 
         // GET: Documents
@@ -48,6 +58,18 @@ namespace QuanLyThuVien.Controllers
             if (document == null)
             {
                 return NotFound();
+            }
+
+            // ✅ THÊM 2 DÒNG NÀY - NGÀY 4
+            // Tăng view count
+            await _documentService.IncrementViewCountAsync(id.Value);
+
+            // Lấy rating của user hiện tại
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var userRating = await _ratingService.GetUserRatingAsync(id.Value, userId);
+                ViewBag.UserRating = userRating;
             }
 
             return View(document);
@@ -257,6 +279,10 @@ namespace QuanLyThuVien.Controllers
             {
                 return NotFound();
             }
+
+            // ✅ THÊM 1 DÒNG NÀY - NGÀY 4
+            // Tăng download count
+            await _documentService.IncrementDownloadCountAsync(id.Value);
 
             var path = Path.Combine(_environment.WebRootPath, "uploads", document.FilePath);
             if (!System.IO.File.Exists(path))
