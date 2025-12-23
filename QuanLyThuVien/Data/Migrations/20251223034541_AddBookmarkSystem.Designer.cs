@@ -12,8 +12,8 @@ using QuanLyThuVien.Data;
 namespace QuanLyThuVien.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251209022455_MakeCommentNullable")]
-    partial class MakeCommentNullable
+    [Migration("20251223034541_AddBookmarkSystem")]
+    partial class AddBookmarkSystem
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -225,6 +225,34 @@ namespace QuanLyThuVien.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("QuanLyThuVien.Models.Bookmark", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DocumentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
+
+                    b.HasIndex("UserId", "DocumentId")
+                        .IsUnique();
+
+                    b.ToTable("Bookmarks");
                 });
 
             modelBuilder.Entity("QuanLyThuVien.Models.Document", b =>
@@ -444,6 +472,25 @@ namespace QuanLyThuVien.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("QuanLyThuVien.Models.Bookmark", b =>
+                {
+                    b.HasOne("QuanLyThuVien.Models.Document", "Document")
+                        .WithMany("Bookmarks")
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Document");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("QuanLyThuVien.Models.Document", b =>
                 {
                     b.HasOne("QuanLyThuVien.Models.Subject", "Subject")
@@ -457,7 +504,7 @@ namespace QuanLyThuVien.Data.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Subject");
@@ -499,6 +546,8 @@ namespace QuanLyThuVien.Data.Migrations
 
             modelBuilder.Entity("QuanLyThuVien.Models.Document", b =>
                 {
+                    b.Navigation("Bookmarks");
+
                     b.Navigation("Ratings");
                 });
 

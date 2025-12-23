@@ -102,23 +102,32 @@
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="d-flex flex-wrap gap-2">
-                        <a asp-action="Download" asp-route-id="@Model.Id"
-                           class="btn btn-success btn-lg px-4 py-2">
-                            <i class="bi bi-download me-2"></i> Tải xuống ngay
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-action="Download" asp-route-id="@Model.Id"
+                       class="btn btn-success btn-lg px-4 py-2">
+                        <i class="bi bi-download me-2"></i> Tải xuống ngay
+                    </a>
+    
+                    <!-- Bookmark Button - ĐẶT TRONG DIV CÙNG -->
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <button id="bookmarkBtn" class="btn btn-outline-primary" data-document-id="@Model.Id">
+                            <i class="bi bi-bookmark"></i>
+                            <span id="bookmarkText">Bookmark</span>
+                        </button>
+                    }
+    
+                    @if (User.Identity.IsAuthenticated && (Model.UserId == userId || User.IsInRole("Admin")))
+                    {
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning">
+                            <i class="bi bi-pencil me-1"></i> Sửa
                         </a>
-                        @if (User.Identity.IsAuthenticated && (Model.UserId == userId || User.IsInRole("Admin")))
-                        {
-                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning">
-                                <i class="bi bi-pencil me-1"></i> Sửa
-                            </a>
-                        }
-                        <a asp-action="Index" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-1"></i> Quay lại
-                        </a>
-                    </div>
+                    }
+    
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Quay lại
+                    </a>
                 </div>
-            </div>
 
             <!-- Rating Distribution Chart -->
             <div class="card shadow-sm mb-4">
@@ -151,74 +160,97 @@
             </div>
 
             <!-- Rating Form -->
-            <!-- Rating Form - SIMPLE WORKING VERSION -->
-            @if (User.Identity.IsAuthenticated)
-            {
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">
-                            <i class="bi bi-chat-square-text me-2"></i>
-                            @(userRating != null ? "Cập nhật đánh giá của bạn" : "Đánh giá tài liệu này")
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="ratingForm" method="post"
-                              asp-controller="Ratings" asp-action="SubmitRating">
-                            <input type="hidden" name="documentId" value="@Model.Id" />
+           <!-- Rating Form - SIMPLE & CLEAN -->
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                <i class="bi bi-star me-2"></i>
+                @(userRating != null ? "Cập nhật đánh giá" : "Đánh giá tài liệu")
+            </h5>
+        </div>
+        <div class="card-body">
+            <form id="ratingForm" method="post"
+                  asp-controller="Ratings" asp-action="SubmitRating">
+                <input type="hidden" name="documentId" value="@Model.Id" />
 
-                            <!-- SIMPLE STAR RATING THAT WORKS -->
-                            <div class="mb-4">
-                                <label class="form-label fw-bold mb-3">Điểm đánh giá:</label>
-                                <div class="d-flex justify-content-center gap-4">
-                                    @for (int i = 1; i <= 5; i++)
-                                    {
-                                        <div class="text-center">
-                                            <input type="radio" id="star-@i" name="score" value="@i"
-                                                   class="form-check-input" style="display: none;"
-                                                   @(userRating?.Score == i ? "checked" : "") />
-                                            <label for="star-@i" class="star-choice" data-value="@i">
-                                                <div class="stars-display mb-1">
-                                                    @for (int s = 1; s <= i; s++)
-                                                    {
-                                                        <i class="bi bi-star-fill fs-2 text-warning"></i>
-                                                    }
-                                                    @for (int s = i + 1; s <= 5; s++)
-                                                    {
-                                                        <i class="bi bi-star fs-2 text-secondary"></i>
-                                                    }
-                                                </div>
-                                                <div class="small">@i sao</div>
-                                            </label>
+                <!-- Simple Star Selection -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold mb-3">Chọn số sao:</label>
+                    
+                    <!-- Star Buttons -->
+                    <div class="d-flex justify-content-center gap-2 mb-4">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <div>
+                                <input type="radio" id="star@(i)" name="score" value="@i" 
+                                       class="d-none"
+                                       @(userRating?.Score == i ? "checked" : "") />
+                                <label for="star@(i)" class="star-btn">
+                                    <div class="text-center">
+                                        <div class="fs-3 fw-bold mb-1">@i</div>
+                                        <div class="stars-small">
+                                            @for (int s = 1; s <= i; s++)
+                                            {
+                                                <i class="bi bi-star-fill text-warning"></i>
+                                            }
                                         </div>
+                                        <div class="small mt-1">sao</div>
+                                    </div>
+                                </label>
+                            </div>
+                        }
+                    </div>
+                    
+                    <!-- Selected Display -->
+                    <div class="text-center p-3 bg-light rounded border">
+                        <div id="selectedStars" class="fs-4">
+                            @if (userRating != null)
+                            {
+                                <span class="text-warning">
+                                    @for (int i = 0; i < userRating.Score; i++)
+                                    {
+                                        <i class="bi bi-star-fill"></i>
                                     }
-                                </div>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="comment" class="form-label fw-bold">Nhận xét:</label>
-                                <textarea name="comment" class="form-control" rows="4"
-                                      placeholder="Chia sẻ cảm nhận của bạn về tài liệu này...">@userRating?.Comment</textarea>
-                                <div class="form-text">Tối đa 500 ký tự</div>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center">
-                                <button type="submit" class="btn btn-primary px-4">
-                                    <i class="bi @(userRating != null ? "bi-check-circle" : "bi-star") me-1"></i>
-                                    @(userRating != null ? "Cập nhật đánh giá" : "Gửi đánh giá")
-                                </button>
-
-                                @if (userRating != null)
-                                {
-                                    <button type="button" class="btn btn-outline-danger"
-                                            onclick="deleteRating(@userRating.Id)">
-                                        <i class="bi bi-trash me-1"></i> Xóa đánh giá
-                                    </button>
-                                }
-                            </div>
-                        </form>
+                                </span>
+                                <span class="fw-bold ms-2">@userRating.Score / 5 sao</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Chưa chọn đánh giá</span>
+                            }
+                        </div>
                     </div>
                 </div>
-            }
+
+                <!-- Comment -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Nhận xét (không bắt buộc):</label>
+                    <textarea name="comment" class="form-control" rows="3"
+                          placeholder="Chia sẻ cảm nhận của bạn...">@userRating?.Comment</textarea>
+                    <div class="form-text">Tối đa 500 ký tự</div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi @(userRating != null ? "bi-check-circle" : "bi-star") me-1"></i>
+                        @(userRating != null ? "Cập nhật" : "Gửi đánh giá")
+                    </button>
+                    
+                    @if (userRating != null)
+                    {
+                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                onclick="deleteRating(@userRating.Id)">
+                            <i class="bi bi-trash me-1"></i> Xóa
+                        </button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+}
 
             <!-- Reviews List -->
             <div class="card shadow-sm">
@@ -384,153 +416,228 @@
         console.log('Document ID:', @Model.Id);
         console.log('User authenticated:', '@User.Identity.IsAuthenticated' === 'True');
 
-        // Star rating interaction - FIX 1
+        // Simple Star Rating Handler
         $(document).ready(function() {
-            // Initialize star rating
-            initStarRating();
-
-            // Form submission handler
+            // Star selection using star-btn clicks
+            $('.star-btn').click(function(e) {
+                e.preventDefault();
+                var starId = $(this).attr('for');
+                
+                // Check the corresponding radio button
+                $('#' + starId).prop('checked', true);
+                
+                // Update visual display
+                var score = starId.replace('star', '');
+                updateStarDisplay(score);
+                
+                // Also trigger change event on radio button
+                $('#' + starId).trigger('change');
+            });
+            
+            // Initialize from existing rating
+            var checked = $('input[name="score"]:checked');
+            if (checked.length) {
+                updateStarDisplay(checked.val());
+            }
+            
+            // Form submission
             $('#ratingForm').submit(function(e) {
                 e.preventDefault();
                 submitRating();
             });
-
-            // Load initial reviews
+            
+            // Load reviews
             loadReviews(1);
-        });
+            
+            // Bookmark functionality - THÊM VÀO ĐÂY
+            // Khởi tạo trạng thái bookmark
+            checkBookmarkStatus();
 
-        function initStarRating() {
-            $('.star-label').click(function() {
-                var starId = $(this).attr('for');
-                var starValue = starId.replace('star-', '');
-
-                console.log('Star clicked:', starValue);
-
-                // Uncheck all
-                $('.star-input input').prop('checked', false);
-                // Check selected
-                $('#' + starId).prop('checked', true);
-
-                // Update star display
-                updateStarDisplay(starValue);
+            // Xử lý click bookmark button
+            $('#bookmarkBtn').click(function () {
+                toggleBookmark();
             });
-
-            // Initialize star display based on current selection
-            var checkedStar = $('.star-input input:checked');
-            if (checkedStar.length > 0) {
-                var starValue = checkedStar.val();
-                updateStarDisplay(starValue);
+        });
+        
+        function updateStarDisplay(value) {
+            var starsHtml = '';
+            for (var i = 0; i < value; i++) {
+                starsHtml += '<i class="bi bi-star-fill"></i>';
             }
-
-            function updateStarDisplay(selectedValue) {
-                // Reset all stars
-                $('.star-icon').removeClass('bi-star-fill').addClass('bi-star');
-
-                // Fill stars up to selected value
-                for (var i = 1; i <= selectedValue; i++) {
-                    $('#star-' + i + ' + .star-label .star-icon').removeClass('bi-star').addClass('bi-star-fill');
+            $('#selectedStars').html(
+                '<span class="text-warning">' + starsHtml + '</span>' +
+                '<span class="fw-bold ms-2">' + value + ' / 5 sao</span>'
+            );
+        }
+        
+        function submitRating() {
+            var score = $('input[name="score"]:checked').val();
+            
+            if (!score) {
+                alert('Vui lòng chọn số sao đánh giá');
+                return;
+            }
+            
+            console.log('Submitting rating:', score);
+            
+            var formData = $('#ratingForm').serialize();
+            
+            $.ajax({
+                url: $('#ratingForm').attr('action'),
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    console.log('Submit response:', response);
+                    
+                    if (response.success) {
+                        alert('✅ ' + (response.message || 'Đánh giá đã được lưu!'));
+                        // Update stats immediately
+                        updateStatsAfterRating(response);
+                        // Reload reviews
+                        loadReviews(1);
+                        
+                        // Update UI for existing rating
+                        $('input[name="score"][value="' + score + '"]').prop('checked', true);
+                        updateStarDisplay(score);
+                    } else {
+                        alert('❌ ' + (response.message || 'Có lỗi xảy ra'));
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr.responseText);
+                    alert('❌ Lỗi kết nối server');
                 }
+            });
+        }
+        
+        function updateStatsAfterRating(response) {
+            // Update average rating
+            if (response.averageRating) {
+                $('.stat-number').eq(2).text(response.averageRating);
+            }
+            
+            // Update rating count
+            if (response.ratingCount) {
+                $('.stat-label').eq(2).find('small').text('(' + response.ratingCount + ' đánh giá)');
+                $('.badge.bg-primary').text(response.ratingCount + ' đánh giá');
             }
         }
 
-        // AJAX load reviews - FIX 2
+        // SIMPLIFIED REVIEWS LOADING
         let currentPage = 1;
         let isLoading = false;
 
         function loadReviews(page) {
             if (isLoading) return;
-
             isLoading = true;
 
-            console.log('Loading reviews page:', page, 'for document:', @Model.Id);
+            console.log('Loading reviews for document:', @Model.Id);
 
-            $('#reviewsContainer').html(
-                '<div class="text-center py-4">' +
-                '<div class="spinner-border spinner-border-sm text-primary" role="status">' +
-                '<span class="visually-hidden">Đang tải...</span>' +
-                '</div>' +
-                '<span class="ms-2">Đang tải đánh giá...</span>' +
-                '</div>'
-            );
+            $('#reviewsContainer').html('<div class="text-center py-4"><div class="spinner-border"></div><p>Đang tải...</p></div>');
 
+            // Try AJAX first
             $.ajax({
                 url: '/Ratings/GetRatings',
                 type: 'GET',
-                data: {
-                    documentId: @Model.Id,
-                    page: page
-                },
+                data: { documentId: @Model.Id, page: page },
                 success: function(data) {
-                    console.log('Ratings response:', data);
-
-                    if (data.success) {
-                        displayReviews(data, page);
+                    console.log('AJAX Success:', data);
+                    if (data && data.success) {
+                        displayReviews(data.ratings, page, data.hasMore);
                     } else {
-                        showError(data.message || 'Không thể tải đánh giá');
+                        // Fallback to direct render
+                        renderReviewsDirectly();
                     }
                     isLoading = false;
                 },
-                error: function(xhr, status, error) {
-                    console.error('AJAX Error:', {
-                        status: xhr.status,
-                        statusText: xhr.statusText,
-                        responseText: xhr.responseText
-                    });
-                    showError('Lỗi kết nối đến server. Vui lòng thử lại.');
+                error: function() {
+                    console.log('AJAX failed, using fallback');
+                    renderReviewsDirectly();
                     isLoading = false;
                 }
             });
-        }
+        } // THIẾU NÀY
 
-        function displayReviews(data, page) {
-            if (data.ratings.length > 0) {
-                var html = '';
+        function displayReviews(ratings, page, hasMore) {
+            if (!ratings || ratings.length === 0) {
+                if (page === 1) {
+                    $('#reviewsContainer').html(
+                        '<div class="text-center py-4 text-muted">' +
+                        '<i class="bi bi-chat-dots fs-1"></i>' +
+                        '<p class="mt-2">Chưa có đánh giá nào</p>' +
+                        '</div>'
+                    );
+                }
+                $('#loadMoreContainer').hide();
+                return;
+            }
 
-                $.each(data.ratings, function(index, review) {
-                    var starsHtml = '';
-                    for (var i = 1; i <= 5; i++) {
-                        starsHtml += '<i class="bi ' + (i <= review.score ? 'bi-star-fill' : 'bi-star') + ' text-warning me-1"></i>';
-                    }
+            var html = '';
+            for (var i = 0; i < ratings.length; i++) {
+                var review = ratings[i];
+                
+                var starsHtml = '';
+                for (var s = 1; s <= 5; s++) {
+                    starsHtml += '<i class="bi ' + (s <= review.score ? 'bi-star-fill' : 'bi-star') + ' text-warning me-1"></i>';
+                }
 
-                    var deleteBtn = review.isCurrentUser
-                        ? '<button class="btn btn-sm btn-outline-danger btn-delete-rating" ' +
-                          'data-rating-id="' + review.id + '" title="Xóa đánh giá">' +
-                          '<i class="bi bi-trash"></i></button>'
-                        : '';
+                var deleteBtn = review.isCurrentUser 
+                    ? '<button class="btn btn-sm btn-outline-danger btn-delete-rating" data-rating-id="' + review.id + '"><i class="bi bi-trash"></i></button>'
+                    : '';
 
-                    html += `
-                        <div class="review-item mb-3 pb-3 border-bottom" data-id="${review.id}">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div>
-                                    <div class="d-flex align-items-center">
-                                        <div class="me-2">
-                                            ${starsHtml}
-                                        </div>
-                                        <div>
-                                            <strong>${review.userName}</strong><br>
-                                            <small class="text-muted">${review.createdAt}</small>
-                                        </div>
+                html += `
+                    <div class="review-item mb-3 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2">${starsHtml}</div>
+                                    <div>
+                                        <strong>${review.userName}</strong><br>
+                                        <small class="text-muted">${review.createdAt}</small>
                                     </div>
                                 </div>
-                                ${deleteBtn}
                             </div>
-                            ${review.comment ? '<div class="mt-2 ps-4">' + review.comment + '</div>' : ''}
+                            ${deleteBtn}
                         </div>
-                    `;
-                });
+                        ${review.comment ? '<div class="mt-2 ps-4">' + review.comment + '</div>' : ''}
+                    </div>
+                `;
+            }
 
-                if (page === 1) {
-                    $('#reviewsContainer').html(html);
-                } else {
-                    $('#reviewsContainer').append(html);
-                }
+            if (page === 1) {
+                $('#reviewsContainer').html(html);
+            } else {
+                $('#reviewsContainer').append(html);
+            }
 
-                if (data.hasMore) {
-                    $('#loadMoreContainer').show();
-                } else {
-                    $('#loadMoreContainer').hide();
-                }
-            } else if (page === 1) {
+            if (hasMore) {
+                $('#loadMoreContainer').show();
+            } else {
+                $('#loadMoreContainer').hide();
+            }
+        }
+
+        // Fallback: Direct rendering from Model
+        function renderReviewsDirectly() {
+            console.log('Rendering reviews directly from Model');
+            
+            @if (Model.Ratings != null && Model.Ratings.Any())
+            {
+                <text>
+                var ratings = @Html.Raw(Json.Serialize(Model.Ratings.OrderByDescending(r => r.CreatedAt).Select(r => new {
+                    id = r.Id,
+                    userName = r.User?.UserName ?? "Ẩn danh",
+                    score = r.Score,
+                    comment = r.Comment,
+                    createdAt = r.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                })));
+                
+                displayReviews(ratings, 1, false);
+                </text>
+            }
+            else
+            {
+                <text>
                 $('#reviewsContainer').html(
                     '<div class="text-center py-4 text-muted">' +
                     '<i class="bi bi-chat-dots fs-1"></i>' +
@@ -538,211 +645,183 @@
                     '</div>'
                 );
                 $('#loadMoreContainer').hide();
+                </text>
             }
         }
 
-        function showError(message) {
-            $('#reviewsContainer').html(
-                '<div class="alert alert-warning">' +
-                '<i class="bi bi-exclamation-triangle me-2"></i>' +
-                message +
-                '</div>'
-            );
-        }
-
-        // Load more reviews
+        // Load more button
         $('#loadMoreBtn').click(function() {
             currentPage++;
             loadReviews(currentPage);
         });
 
-        // Submit rating
-        function submitRating() {
-            var formData = $('#ratingForm').serialize();
-
-            console.log('Submitting rating form:', formData);
-
-            $.ajax({
-                url: $('#ratingForm').attr('action'),
-                type: 'POST',
-                data: formData,
-                success: function(response) {
-                    console.log('Submit response:', response);
-
-                    if (response.success) {
-                        // Update UI without reloading page
-                        updateRatingStats(response.averageRating, response.ratingCount);
-                        loadReviews(1); // Reload reviews
-                        alert(response.message || 'Đã lưu đánh giá!');
-                    } else {
-                        alert(response.message || 'Có lỗi xảy ra');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Submit error:', xhr.responseText);
-                    alert('Lỗi kết nối. Vui lòng thử lại.');
-                }
-            });
-        }
-
         // Delete rating
         function deleteRating(ratingId) {
-            if (confirm('Bạn có chắc chắn muốn xóa đánh giá này?')) {
-                $.ajax({
-                    url: '/Ratings/Delete',
-                    type: 'POST',
-                    data: { id: ratingId },
-                    success: function(response) {
-                        console.log('Delete response:', response);
-
-                        if (response.success) {
-                            loadReviews(1); // Reload reviews
-                            alert(response.message || 'Đã xóa đánh giá');
-                        } else {
-                            alert(response.message || 'Có lỗi xảy ra');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Delete error:', xhr.responseText);
-                        alert('Lỗi kết nối. Vui lòng thử lại.');
+            if (confirm('Xóa đánh giá này?')) {
+                $.post('/Ratings/Delete', { id: ratingId }, function(response) {
+                    if (response.success) {
+                        loadReviews(1);
+                        alert('Đã xóa đánh giá');
+                    } else {
+                        alert('Lỗi: ' + response.message);
                     }
                 });
             }
         }
 
-        // Update rating stats without reloading page
-        function updateRatingStats(averageRating, ratingCount) {
-            // Update average rating display
-            $('.stat-number').eq(2).text(averageRating);
-
-            // Update rating count
-            $('.stat-label').eq(2).find('small').text('(' + ratingCount + ' đánh giá)');
-
-            // Update badge
-            $('.badge.bg-primary').text(ratingCount + ' đánh giá');
-
-            // Update distribution if needed
-            console.log('Stats updated:', { averageRating, ratingCount });
-        }
-
-        // Event delegation for delete buttons
         $(document).on('click', '.btn-delete-rating', function() {
             var ratingId = $(this).data('rating-id');
             deleteRating(ratingId);
         });
+
+        // ================= BOOKMARK FUNCTIONS =================
+        function checkBookmarkStatus() {
+            var documentId = $('#bookmarkBtn').data('document-id');
+
+            $.get('/Bookmarks/Check?documentId=' + documentId, function (response) {
+                if (response.isBookmarked) {
+                    updateBookmarkUI(true);
+                }
+            });
+        }
+
+        function toggleBookmark() {
+            var documentId = $('#bookmarkBtn').data('document-id');
+            var btn = $('#bookmarkBtn');
+            var icon = btn.find('i');
+            var text = $('#bookmarkText');
+
+            // Disable button trong khi loading
+            btn.prop('disabled', true);
+            icon.removeClass('bi-bookmark bi-bookmark-fill').addClass('bi-hourglass');
+
+            $.post('/Bookmarks/Toggle', { documentId: documentId }, function (response) {
+                if (response.success) {
+                    updateBookmarkUI(response.isBookmarked);
+
+                    // Show toast notification
+                    showToast(response.message, 'success');
+                } else {
+                    showToast(response.message, 'error');
+                }
+
+                // Re-enable button
+                btn.prop('disabled', false);
+            }).fail(function () {
+                showToast('Có lỗi xảy ra', 'error');
+                btn.prop('disabled', false);
+            });
+        }
+
+        function updateBookmarkUI(isBookmarked) {
+            var btn = $('#bookmarkBtn');
+            var icon = btn.find('i');
+            var text = $('#bookmarkText');
+
+            if (isBookmarked) {
+                btn.removeClass('btn-outline-primary').addClass('btn-primary');
+                icon.removeClass('bi-bookmark').addClass('bi-bookmark-fill');
+                text.text(' Đã bookmark');
+            } else {
+                btn.removeClass('btn-primary').addClass('btn-outline-primary');
+                icon.removeClass('bi-bookmark-fill').addClass('bi-bookmark');
+                text.text(' Bookmark');
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            var toast = `<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+                <div class="toast show" role="alert">
+                    <div class="toast-header bg-${type === 'success' ? 'success' : 'danger'} text-white">
+                        <i class="bi ${type === 'success' ? 'bi-check-circle' : 'bi-exclamation-circle'} me-2"></i>
+                        <strong class="me-auto">Thông báo</strong>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div class="toast-body">${message}</div>
+                </div>
+            </div>`;
+
+            $('body').append(toast);
+
+            // Tự động xóa sau 3 giây
+            setTimeout(function () {
+                $('.toast').remove();
+            }, 3000);
+        }
+        // ================= END BOOKMARK FUNCTIONS =================
     </script>
+    
+    <style>
+        .stat-card { padding: 15px; border-radius: 10px; background: #f8f9fa; }
+        .stat-card:hover { transform: translateY(-5px); background: #e9ecef; }
+        .review-item:hover { background-color: #f8f9fa; }
+        .form-check-input:checked { background-color: #ffc107; border-color: #ffc107; }
+    </style>
+}
 
     <style>
-        .star-choice {
-            cursor: pointer;
-            padding: 10px;
+        .star-btn {
+            display: block;
+            width: 70px;
+            padding: 12px 0;
+            border: 2px solid #dee2e6;
             border-radius: 8px;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-        }
-
-            .star-choice:hover {
-                background-color: #f8f9fa;
-                border-color: #dee2e6;
-                transform: scale(1.05);
-            }
-
-        input[type="radio"]:checked + .star-choice {
-            background-color: #fff3cd;
-            border-color: #ffc107;
-            box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
-        }
-        /* Stat Cards */
-        .stat-card {
-            padding: 15px;
-            border-radius: 10px;
-            background: #f8f9fa;
-            transition: transform 0.2s;
-        }
-
-            .stat-card:hover {
-                transform: translateY(-5px);
-                background: #e9ecef;
-            }
-
-        .stat-icon {
-            margin-bottom: 10px;
-        }
-
-        .stat-number {
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-        }
-
-        /* Star Rating FIX */
-        .star-input {
-            display: flex;
-            flex-direction: row-reverse;
-            justify-content: flex-start;
-            gap: 10px;
-        }
-
-            .star-input input[type="radio"] {
-                display: none !important;
-            }
-
-        .star-label {
+            background: white;
             cursor: pointer;
-            font-size: 2rem;
-            color: #ddd;
-            transition: color 0.3s;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
         }
 
-            .star-label:hover,
-            .star-label:hover ~ .star-label,
-            .star-input input:checked ~ .star-label {
-                color: #ffc107 !important;
-            }
-
-        .star-input input:checked + .star-label {
-            color: #ffc107 !important;
+        .star-btn:hover {
+            border-color: #ffc107;
+            background-color: #fff9e6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
-        /* Review Items */
-        .review-item {
-            transition: background-color 0.2s;
+        input[type="radio"]:checked + .star-btn {
+            border-color: #ffc107;
+            background-color: #fff3cd;
+            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
         }
 
-            .review-item:hover {
-                background-color: #f8f9fa;
-            }
-
-        /* Progress Bars */
-        .progress {
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        /* Badges */
-        .badge {
-            padding: 0.35em 0.65em;
-            font-weight: 500;
-        }
-
-        /* Cards */
-        .card {
-            border: none;
-            border-radius: 12px;
-        }
-
-        .card-header {
-            border-radius: 12px 12px 0 0 !important;
-            border-bottom: 1px solid rgba(0,0,0,.125);
+        .stars-small .bi-star-fill {
+            font-size: 0.9rem;
+            margin: 0 1px;
         }
 
         /* Responsive */
-        @@media (max-width: 768px) {
-            .stat-card {
-                margin-bottom: 15px;
+        @@media (max-width: 576px) {
+            .star-btn {
+                width: 60px;
+                padding: 10px 0;
+            }
+            
+            .star-btn .fs-3 {
+                font-size: 1.5rem !important;
             }
         }
+        
+        /* Additional styles */
+        .stat-card { 
+            padding: 15px; 
+            border-radius: 10px; 
+            background: #f8f9fa; 
+            transition: transform 0.3s;
+        }
+        .stat-card:hover { 
+            transform: translateY(-5px); 
+            background: #e9ecef; 
+        }
+        .review-item:hover { 
+            background-color: #f8f9fa; 
+        }
+        .form-check-input:checked { 
+            background-color: #ffc107; 
+            border-color: #ffc107; 
+        }
     </style>
+
+
 }

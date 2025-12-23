@@ -19,6 +19,8 @@ builder.Services.AddControllersWithViews();
 // ========== ĐĂNG KÝ SERVICES CỦA BẠN ==========
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<IRatingService, RatingService>();
+// Thêm sau các services khác
+builder.Services.AddScoped<IBookmarkService, BookmarkService>();
 // ===============================================
 
 var app = builder.Build();

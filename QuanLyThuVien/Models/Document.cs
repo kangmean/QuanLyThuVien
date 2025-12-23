@@ -86,6 +86,7 @@ namespace QuanLyThuVien.Models
         public virtual Subject Subject { get; set; }
 
         public virtual ICollection<Rating> Ratings { get; set; } = new List<Rating>();
+        public virtual ICollection<Bookmark> Bookmarks { get; set; } = new List<Bookmark>();
 
         // Có thể thêm Tags/Categories sau
         // public virtual ICollection<DocumentTag> DocumentTags { get; set; }
