@@ -1,0 +1,338 @@
+﻿@model QuanLyThuVien.Controllers.DashboardViewModel
+@using QuanLyThuVien.Models
+
+@{
+    ViewData["Title"] = "Dashboard";
+    var stats = Model.PersonalStats;
+}
+
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active">📊 Dashboard</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-6 mb-2">
+                <i class="bi bi-speedometer2 text-primary"></i> Bảng điều khiển
+            </h1>
+            <p class="text-muted">
+                <i class="bi bi-person-circle me-1"></i> Chào @User.Identity?.Name!
+                Đây là thống kê hoạt động của bạn
+            </p>
+        </div>
+    </div>
+
+    <!-- Personal Statistics -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Thống kê cá nhân</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Stat Cards -->
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="stat-card bg-light p-3 rounded-3 text-center">
+                                <div class="stat-icon text-primary mb-2">
+                                    <i class="bi bi-stack fs-1"></i>
+                                </div>
+                                <div class="stat-number fw-bold fs-3">@stats.TotalDocuments</div>
+                                <div class="stat-label text-muted">Tài liệu</div>
+                                <small class="text-muted">@stats.DocumentsPerDay.ToString("0.00")/ngày</small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="stat-card bg-light p-3 rounded-3 text-center">
+                                <div class="stat-icon text-info mb-2">
+                                    <i class="bi bi-eye fs-1"></i>
+                                </div>
+                                <div class="stat-number fw-bold fs-3">@stats.TotalViews</div>
+                                <div class="stat-label text-muted">Lượt xem</div>
+                                <small class="text-muted">Tổng cộng</small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="stat-card bg-light p-3 rounded-3 text-center">
+                                <div class="stat-icon text-success mb-2">
+                                    <i class="bi bi-download fs-1"></i>
+                                </div>
+                                <div class="stat-number fw-bold fs-3">@stats.TotalDownloads</div>
+                                <div class="stat-label text-muted">Lượt tải</div>
+                                <small class="text-muted">Tổng cộng</small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="stat-card bg-light p-3 rounded-3 text-center">
+                                <div class="stat-icon text-warning mb-2">
+                                    <i class="bi bi-star fs-1"></i>
+                                </div>
+                                <div class="stat-number fw-bold fs-3">@stats.AverageRating.ToString("0.0")</div>
+                                <div class="stat-label text-muted">Điểm TB</div>
+                                <small class="text-muted">@stats.TotalRatings đánh giá</small>
+                            </div>
+                        </div>
+
+                        <!-- Additional Stats -->
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="stat-card bg-light p-3 rounded-3 text-center">
+                                <div class="stat-icon text-danger mb-2">
+                                    <i class="bi bi-bookmark fs-1"></i>
+                                </div>
+                                <div class="stat-number fw-bold fs-3">@stats.TotalBookmarks</div>
+                                <div class="stat-label text-muted">Bookmarks</div>
+                                <small class="text-muted">Đã lưu</small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="stat-card bg-light p-3 rounded-3 text-center">
+                                <div class="stat-icon text-purple mb-2">
+                                    <i class="bi bi-fire fs-1"></i>
+                                </div>
+                                <div class="stat-number fw-bold fs-3">@stats.PopularityScore</div>
+                                <div class="stat-label text-muted">Độ phổ biến</div>
+                                <small class="text-muted">Điểm số</small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="stat-card bg-gradient-primary text-white p-3 rounded-3">
+                                <div class="row align-items-center">
+                                    <div class="col-8">
+                                        <h5 class="mb-1">Tóm tắt hoạt động</h5>
+                                        <p class="mb-0 small">
+                                            Bạn đã đóng góp @stats.TotalDocuments tài liệu với
+                                            @stats.TotalDownloads lượt tải và @stats.TotalRatings đánh giá
+                                        </p>
+                                    </div>
+                                    <div class="col-4 text-end">
+                                        <i class="bi bi-trophy display-4 opacity-50"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three Columns: Uploads, Ratings, Bookmarks -->
+    <div class="row">
+        <!-- Recent Uploads -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-upload me-2"></i>Tài liệu gần đây
+                        <a asp-controller="Documents" asp-action="UserDocuments"
+                           class="float-end text-white small">Xem tất cả →</a>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentUploads.Any())
+                    {
+                        foreach (var doc in Model.RecentUploads)
+                        {
+                            <div class="mb-3 pb-3 border-bottom">
+                                <h6 class="mb-1">
+                                    <a asp-controller="Documents" asp-action="Details" asp-route-id="@doc.Id"
+                                       class="text-decoration-none">@doc.Title</a>
+                                </h6>
+                                <div class="small text-muted">
+                                    <i class="bi bi-calendar me-1"></i>@doc.UploadDate.ToString("dd/MM/yyyy")
+                                    <span class="mx-2">•</span>
+                                    <i class="bi bi-eye me-1"></i>@doc.ViewCount
+                                    <span class="mx-2">•</span>
+                                    <i class="bi bi-star me-1"></i>@doc.AverageRating.ToString("0.0")
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-upload display-6 text-muted"></i>
+                            <p class="mt-2 text-muted">Chưa upload tài liệu nào</p>
+                            <a asp-controller="Documents" asp-action="Create" class="btn btn-sm btn-success">
+                                <i class="bi bi-plus-circle me-1"></i>Upload ngay
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Ratings -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-star me-2"></i>Đánh giá gần đây
+                        <a asp-controller="Ratings" asp-action="MyRatings"
+                           class="float-end text-dark small">Xem tất cả →</a>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentRatings.Any())
+                    {
+                        foreach (var rating in Model.RecentRatings)
+                        {
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h6 class="mb-1">
+                                        <a asp-controller="Documents" asp-action="Details" asp-route-id="@rating.DocumentId"
+                                           class="text-decoration-none">@rating.Document?.Title</a>
+                                    </h6>
+                                    <span class="badge bg-warning">@rating.Score ★</span>
+                                </div>
+                                @if (!string.IsNullOrEmpty(rating.Comment))
+                                {
+                                    <p class="small mb-1">"@rating.Comment"</p>
+                                }
+                                <div class="small text-muted">
+                                    <i class="bi bi-clock me-1"></i>@rating.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-star display-6 text-muted"></i>
+                            <p class="mt-2 text-muted">Chưa đánh giá tài liệu nào</p>
+                            <a asp-controller="Documents" asp-action="Index" class="btn btn-sm btn-warning">
+                                <i class="bi bi-search me-1"></i>Tìm tài liệu
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Bookmarks -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bookmark me-2"></i>Bookmarks gần đây
+                        <a asp-controller="Bookmarks" asp-action="Index"
+                           class="float-end text-white small">Xem tất cả →</a>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentBookmarks.Any())
+                    {
+                        foreach (var doc in Model.RecentBookmarks)
+                        {
+                            <div class="mb-3 pb-3 border-bottom">
+                                <h6 class="mb-1">
+                                    <a asp-controller="Documents" asp-action="Details" asp-route-id="@doc.Id"
+                                       class="text-decoration-none">@doc.Title</a>
+                                </h6>
+                                <div class="small text-muted">
+                                    <i class="bi bi-filetype-@(doc.FileType.Replace(".", "")) me-1"></i>@doc.FileType.ToUpper()
+                                    <span class="mx-2">•</span>
+                                    <i class="bi bi-eye me-1"></i>@doc.ViewCount
+                                    <span class="mx-2">•</span>
+                                    <i class="bi bi-download me-1"></i>@doc.DownloadCount
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-bookmark display-6 text-muted"></i>
+                            <p class="mt-2 text-muted">Chưa có bookmark nào</p>
+                            <a asp-controller="Documents" asp-action="Index" class="btn btn-sm btn-primary">
+                                <i class="bi bi-search me-1"></i>Tìm tài liệu
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <h5 class="mb-3">Hành động nhanh</h5>
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <a asp-controller="Documents" asp-action="Create" class="btn btn-success">
+                            <i class="bi bi-upload me-1"></i>Upload tài liệu
+                        </a>
+                        <a asp-controller="Documents" asp-action="Index" class="btn btn-primary">
+                            <i class="bi bi-search me-1"></i>Tìm tài liệu
+                        </a>
+                        <a asp-controller="Bookmarks" asp-action="Index" class="btn btn-warning">
+                            <i class="bi bi-bookmark me-1"></i>Xem Bookmarks
+                        </a>
+                        <a asp-controller="Documents" asp-action="MyUploads" class="btn btn-info">
+                            <i class="bi bi-list-ul me-1"></i>Tài liệu của tôi
+                        </a>
+                        <a asp-controller="Ratings" asp-action="MyRatings" class="btn btn-warning">
+                            <i class="bi bi-star me-1"></i>Đánh giá của tôi
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .stat-card {
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+        .stat-icon {
+            opacity: 0.8;
+        }
+
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        }
+
+        .text-purple {
+            color: #6f42c1;
+        }
+
+        .card {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            border-radius: 12px 12px 0 0 !important;
+        }
+
+        .hover-lift {
+            transition: transform 0.2s;
+        }
+
+            .hover-lift:hover {
+                transform: translateY(-2px);
+            }
+    </style>
+}

@@ -21,7 +21,7 @@ namespace QuanLyThuVien.Models
 
         [Display(Name = "Ngày đánh giá")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-
+        public DateTime? UpdatedAt { get; set; }
         // Foreign keys
         public int DocumentId { get; set; }
         public string UserId { get; set; }

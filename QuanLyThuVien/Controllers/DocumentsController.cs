@@ -43,6 +43,7 @@ namespace QuanLyThuVien.Controllers
         }
 
         // GET: Documents/Details/5
+        // GET: Documents/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -50,11 +51,15 @@ namespace QuanLyThuVien.Controllers
                 return NotFound();
             }
 
+            // ✅ SỬA Ở ĐÂY: THÊM INCLUDE RATINGS VÀ USER CỦA RATINGS
             var document = await _context.Documents
                 .Include(d => d.Subject)
                 .Include(d => d.University)
                 .Include(d => d.User)
+                .Include(d => d.Ratings) // THÊM DÒNG NÀY
+                    .ThenInclude(r => r.User) // THÊM DÒNG NÀY - QUAN TRỌNG
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (document == null)
             {
                 return NotFound();
@@ -302,6 +307,34 @@ namespace QuanLyThuVien.Controllers
             var safeFileName = document.Title + document.FileType;
 
             return File(memory, contentType, safeFileName);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> MyUploads(int page = 1)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var pageSize = 20;
+
+            // Lấy documents của user
+            var documents = await _context.Documents
+                .Where(d => d.UserId == userId)
+                .Include(d => d.University)
+                .Include(d => d.Subject)
+                .OrderByDescending(d => d.UploadDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Tính tổng số documents
+            var totalCount = await _context.Documents
+                .CountAsync(d => d.UserId == userId);
+
+            // Thông tin pagination
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            ViewBag.TotalCount = totalCount;
+
+            return View(documents);
         }
 
         private string GetContentType(string fileType)

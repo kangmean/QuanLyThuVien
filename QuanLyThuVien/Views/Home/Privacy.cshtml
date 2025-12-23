@@ -1,6 +1,334 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Chính sách bảo mật";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Chính sách bảo mật</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 mb-3">
+                <i class="bi bi-shield-lock text-primary"></i> Chính sách bảo mật
+            </h1>
+            <p class="lead text-muted">
+                Bảo vệ thông tin của bạn là ưu tiên hàng đầu của chúng tôi
+            </p>
+        </div>
+    </div>
+
+    <!-- Privacy Content -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <!-- Last Updated -->
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Cập nhật lần cuối:</strong> @DateTime.Now.ToString("dd/MM/yyyy")
+                    </div>
+
+                    <!-- Section 1: Introduction -->
+                    <div class="mb-5">
+                        <h3 class="mb-3">
+                            <i class="bi bi-file-text text-primary me-2"></i>Giới thiệu
+                        </h3>
+                        <p>
+                            Chào mừng bạn đến với <strong>QuanLyThuVien</strong> - nền tảng chia sẻ tài liệu học tập.
+                            Chúng tôi cam kết bảo vệ quyền riêng tư và thông tin cá nhân của người dùng.
+                        </p>
+                        <p>
+                            Chính sách bảo mật này giải thích cách chúng tôi thu thập, sử dụng, bảo vệ và chia sẻ
+                            thông tin của bạn khi bạn sử dụng dịch vụ của chúng tôi.
+                        </p>
+                    </div>
+
+                    <!-- Section 2: Information We Collect -->
+                    <div class="mb-5">
+                        <h3 class="mb-3">
+                            <i class="bi bi-database text-primary me-2"></i>Thông tin chúng tôi thu thập
+                        </h3>
+
+                        <h5 class="mt-4">1. Thông tin cá nhân</h5>
+                        <ul>
+                            <li><strong>Tên người dùng và email</strong> - để đăng ký và đăng nhập tài khoản</li>
+                            <li><strong>Ảnh đại diện</strong> - tùy chọn cập nhật hồ sơ</li>
+                            <li><strong>Thông tin hồ sơ</strong> - nếu bạn cung cấp thêm</li>
+                        </ul>
+
+                        <h5 class="mt-4">2. Thông tin hoạt động</h5>
+                        <ul>
+                            <li><strong>Tài liệu đã upload</strong> - file, mô tả, thông tin liên quan</li>
+                            <li><strong>Đánh giá và bình luận</strong> - điểm số và nhận xét về tài liệu</li>
+                            <li><strong>Bookmarks</strong> - tài liệu bạn đã lưu</li>
+                            <li><strong>Lượt xem và tải xuống</strong> - thống kê hoạt động</li>
+                        </ul>
+
+                        <h5 class="mt-4">3. Thông tin kỹ thuật</h5>
+                        <ul>
+                            <li><strong>Địa chỉ IP</strong> - cho mục đích bảo mật và phân tích</li>
+                            <li><strong>Thiết bị và trình duyệt</strong> - để tối ưu hóa trải nghiệm</li>
+                            <li><strong>Logs hệ thống</strong> - cho mục đích debug và cải thiện dịch vụ</li>
+                        </ul>
+                    </div>
+
+                    <!-- Section 3: How We Use Information -->
+                    <div class="mb-5">
+                        <h3 class="mb-3">
+                            <i class="bi bi-gear text-primary me-2"></i>Cách chúng tôi sử dụng thông tin
+                        </h3>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="bi bi-person-check text-success me-2"></i>Cá nhân hóa
+                                        </h5>
+                                        <p class="card-text">
+                                            Cung cấp trải nghiệm người dùng được cá nhân hóa,
+                                            gợi ý tài liệu phù hợp với sở thích.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="bi bi-shield-check text-success me-2"></i>Bảo mật
+                                        </h5>
+                                        <p class="card-text">
+                                            Bảo vệ tài khoản và hệ thống khỏi các hoạt động
+                                            gian lận, lạm dụng hoặc truy cập trái phép.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="bi bi-graph-up text-success me-2"></i>Cải thiện dịch vụ
+                                        </h5>
+                                        <p class="card-text">
+                                            Phân tích dữ liệu để cải thiện chất lượng dịch vụ,
+                                            tối ưu hóa tính năng và giao diện.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="bi bi-envelope text-success me-2"></i>Liên lạc
+                                        </h5>
+                                        <p class="card-text">
+                                            Gửi thông báo quan trọng về tài khoản, cập nhật
+                                            dịch vụ hoặc phản hồi yêu cầu hỗ trợ.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Data Protection -->
+                    <div class="mb-5">
+                        <h3 class="mb-3">
+                            <i class="bi bi-shield-lock text-primary me-2"></i>Bảo vệ dữ liệu
+                        </h3>
+                        <div class="alert alert-success">
+                            <h5><i class="bi bi-check-circle me-2"></i>Các biện pháp bảo vệ của chúng tôi:</h5>
+                            <ul class="mb-0">
+                                <li>Mã hóa dữ liệu nhạy cảm trong quá trình truyền tải</li>
+                                <li>Xác thực hai yếu tố (2FA) tùy chọn cho tài khoản</li>
+                                <li>Giám sát hệ thống 24/7 để phát hiện hoạt động bất thường</li>
+                                <li>Sao lưu dữ liệu định kỳ để đảm bảo không mất thông tin</li>
+                                <li>Tuân thủ các tiêu chuẩn bảo mật ngành</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Section 5: User Rights -->
+                    <div class="mb-5">
+                        <h3 class="mb-3">
+                            <i class="bi bi-person-badge text-primary me-2"></i>Quyền của người dùng
+                        </h3>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="text-center p-3 border rounded">
+                                    <i class="bi bi-eye display-6 text-primary mb-3"></i>
+                                    <h5>Quyền truy cập</h5>
+                                    <p class="small">Xem thông tin cá nhân chúng tôi lưu trữ</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="text-center p-3 border rounded">
+                                    <i class="bi bi-pencil display-6 text-success mb-3"></i>
+                                    <h5>Quyền chỉnh sửa</h5>
+                                    <p class="small">Cập nhật hoặc sửa thông tin không chính xác</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="text-center p-3 border rounded">
+                                    <i class="bi bi-trash display-6 text-danger mb-3"></i>
+                                    <h5>Quyền xóa</h5>
+                                    <p class="small">Yêu cầu xóa tài khoản và dữ liệu cá nhân</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-3">
+                            Để thực hiện các quyền này, vui lòng liên hệ với chúng tôi qua email:
+                            <a href="mailto:privacy@quanlythuvien.com" class="fw-bold">privacy@quanlythuvien.com</a>
+                        </p>
+                    </div>
+
+                    <!-- Section 6: Cookies -->
+                    <div class="mb-5">
+                        <h3 class="mb-3">
+                            <i class="bi bi-cookie text-primary me-2"></i>Cookies
+                        </h3>
+                        <p>
+                            Chúng tôi sử dụng cookies để:
+                        </p>
+                        <ul>
+                            <li>Ghi nhớ thông tin đăng nhập (nếu bạn chọn "Nhớ tôi")</li>
+                            <li>Phân tích lưu lượng truy cập và hành vi người dùng</li>
+                            <li>Cá nhân hóa nội dung và quảng cáo</li>
+                            <li>Cải thiện hiệu suất trang web</li>
+                        </ul>
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Bạn có thể kiểm soát cookies thông qua cài đặt trình duyệt.
+                            Tuy nhiên, việc tắt cookies có thể ảnh hưởng đến trải nghiệm sử dụng.
+                        </div>
+                    </div>
+
+                    <!-- Section 7: Contact -->
+                    <div class="mb-4">
+                        <h3 class="mb-3">
+                            <i class="bi bi-headset text-primary me-2"></i>Liên hệ
+                        </h3>
+                        <div class="card bg-light border-0">
+                            <div class="card-body">
+                                <h5 class="card-title">Bộ phận hỗ trợ bảo mật</h5>
+                                <p class="card-text">
+                                    Nếu bạn có bất kỳ câu hỏi hoặc lo ngại nào về chính sách bảo mật này,
+                                    vui lòng liên hệ với chúng tôi:
+                                </p>
+                                <ul class="mb-0">
+                                    <li><strong>Email:</strong> pkminh3454@gmail.com</li>
+                                    <li><strong>Thời gian làm việc:</strong> 8:00 - 17:00 (Thứ 2 - Thứ 6)</li>
+                                    <li><strong>Phản hồi:</strong> Trong vòng 48 giờ làm việc</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Agreement -->
+                    <div class="alert alert-secondary mt-4">
+                        <h5><i class="bi bi-check-all me-2"></i>Đồng ý với chính sách</h5>
+                        <p class="mb-0">
+                            Bằng cách sử dụng dịch vụ của chúng tôi, bạn đồng ý với việc thu thập
+                            và sử dụng thông tin theo mô tả trong chính sách bảo mật này.
+                            Chúng tôi có thể cập nhật chính sách này định kỳ, vui lòng kiểm tra trang này thường xuyên.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top -->
+    <div class="text-center mt-5">
+        <a href="#" class="btn btn-outline-primary" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+            <i class="bi bi-arrow-up me-1"></i>Lên đầu trang
+        </a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary ms-2">
+            <i class="bi bi-house me-1"></i>Về trang chủ
+        </a>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 12px;
+            transition: transform 0.3s;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+            }
+
+        h3 {
+            color: #2c3e50;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+
+        ul {
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .breadcrumb {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Add active class to current section while scrolling
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('h3');
+            const scrollPosition = window.scrollY + 100;
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+
+                if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                    section.style.borderBottomColor = '#4e73df';
+                } else {
+                    section.style.borderBottomColor = '#f8f9fa';
+                }
+            });
+        });
+    </script>
+}

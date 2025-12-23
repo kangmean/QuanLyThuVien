@@ -4,73 +4,112 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - QuanLyThuVien</title>
+    
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    
+    <!-- Bootstrap Icons (THÊM DÒNG NÀY) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/QuanLyThuVien.styles.css" asp-append-version="true" />
+    
     @await RenderSectionAsync("Styles", required: false)
-
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">📚 QuanLyThuVien</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <!-- Brand/Logo -->
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-book text-primary"></i> QuanLyThuVien
+                </a>
+                
+                <!-- Mobile Toggle Button -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                
+                <!-- Navbar Content -->
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-
-                    <!-- THÊM SEARCH FORM VÀO ĐÂY -->
+                    <!-- Search Form -->
                     <form method="get" asp-action="Search" asp-controller="Home" class="d-flex me-3">
                         <div class="input-group input-group-sm">
-                            <input type="text" name="searchString" class="form-control"
+                            <input type="text" name="searchString" class="form-control" 
                                    placeholder="Tìm tài liệu..." style="width: 180px;" />
-                            <button type="submit" class="btn btn-outline-primary">🔍</button>
+                            <button type="submit" class="btn btn-outline-primary">
+                                <i class="bi bi-search"></i>
+                            </button>
                         </div>
                     </form>
 
+                    <!-- Main Navigation -->
                     <ul class="navbar-nav flex-grow-1">
+                        <!-- Home -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">🏠 Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door me-1"></i>Home
+                            </a>
                         </li>
+                        
+                        <!-- Documents -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Documents" asp-action="Index">📄 Tài liệu</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Documents" asp-action="Index">
+                                <i class="bi bi-file-earmark-text me-1"></i>Tài liệu
+                            </a>
                         </li>
-
-                        <!-- THÊM NÚT BOOKMARKS Ở ĐÂY -->
+                        
+                        <!-- Dashboard (chỉ hiện khi đăng nhập) -->
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Bookmarks" asp-action="Index">
-                                    📌 Bookmarks
+                                <a class="nav-link text-dark" asp-controller="Dashboard" asp-action="Index">
+                                    <i class="bi bi-speedometer2 me-1 text-primary"></i>Dashboard
+                                </a>
+                            </li>
+                            
+                            <!-- Bookmarks -->
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Bookmarks" asp-action="Index">
+                                    <i class="bi bi-bookmark-star me-1 text-warning"></i>Bookmarks
                                 </a>
                             </li>
                         }
-
+                        
+                        <!-- Privacy -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Search">🔍 Tìm kiếm</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">🔒 Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i class="bi bi-shield-lock me-1"></i>Privacy
+                            </a>
                         </li>
                     </ul>
+                    
+                    <!-- Login/User Menu -->
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
+    
+    <!-- Main Content -->
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
+    <!-- Footer -->
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2025 - QuanLyThuVien - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2025 - QuanLyThuVien - 
+            <a asp-area="" asp-controller="Home" asp-action="Privacy">
+                <i class="bi bi-shield-lock me-1"></i>Privacy
+            </a>
         </div>
     </footer>
+
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
